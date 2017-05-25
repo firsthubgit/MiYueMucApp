@@ -1,0 +1,89 @@
+<resources xmlns:android="http://schemas.android.com/tools">
+
+    <!-- Base application theme. -->
+    <style name="AppTheme" parent="Theme.AppCompat.Light.DarkActionBar">
+        <!-- Customize your theme here. -->
+        <item name="colorPrimary">@color/my_transparent</item>
+        <item name="colorPrimaryDark">@color/my_transparent</item>
+        <item name="colorAccent">@color/colorAccent</item>
+        <item name="android:windowTranslucentStatus">false</item>
+    </style>
+
+
+    <style name="AppTheme.NoActionBar">
+        <item name="windowActionBar">false</item>
+        <item name="windowNoTitle">true</item>
+        <item name="android:windowTranslucentStatus">false</item>
+    </style>
+
+    <style name="MyTabLayoutTextAppearance" parent="TextAppearance.AppCompat.Widget.ActionBar.Title">
+        <item name="android:textSize">20dp</item>
+        <item name="tabPaddingStart">12dp</item>
+        <item name="tabPaddingEnd">12dp</item>
+    </style>
+
+    <style name="LineStyle">
+        <item name="android:gravity">center_vertical</item>
+        <item name="android:background">@color/my_white_alpha_5</item>
+        <item name="android:paddingLeft">@dimen/my_twolines_list_left_padding</item>
+        <item name="android:paddingRight">@dimen/my_twolines_list_left_padding</item>
+    </style>
+    <style name="LineStyle.Section" parent="@style/LineStyle">
+        <item name="android:paddingTop">12.0dip</item>
+        <item name="android:paddingBottom">7.0dip</item>
+    </style>
+
+
+    <style name="TextColorWhite">
+        <item name="android:textColor">@color/my_common_white</item>
+    </style>
+
+    <style name="TextColorWhite.Section" parent="@style/TextColorWhite">
+        <item name="android:textSize">@dimen/text_size_18</item>
+    </style>
+
+    <style name="TextColorWhite.SectionMore" parent="@style/TextColorWhite">
+        <item name="android:textSize">@dimen/text_size_14</item>
+    </style>
+
+    <style name="TextColorWhite60">
+        <item name="android:textColor">@color/my_white_alpha_50</item>
+    </style>
+
+    <style name="TextColorWhite60.SectionCount" parent="@style/TextColorWhite60">
+        <item name="android:textSize">@dimen/text_size_15</item>
+    </style>
+
+    <style name="DivideLine" >
+        <item name="android:background">@color/my_white_alpha_5</item>
+        <item name="android:layout_width">match_parent</item>
+    </style>
+
+    <style name="AnimBottom" parent="@android:style/Animation">
+        <item name="android:windowEnterAnimation">@animator/push_bottom_in</item>
+        <item name="android:windowExitAnimation">@animator/push_bottom_out</item>
+    </style>
+
+    <style name="SlidingMenu.View.SplitLine" parent="@android:style/Widget">
+        <item name="android:background">@mipmap/sliding_menu_line</item>
+        <item name="android:layout_width">fill_parent</item>
+        <item name="android:layout_height">wrap_content</item>
+    </style>
+    <style name="SlidingMenu.TextView.Title" parent="@android:style/Widget.TextView">
+        <item name="android:textSize">15.0sp</item>
+        <item name="android:textColor">@android:color/white</item>
+    </style>
+    <style name="SlidingMenu.TextView.SubTitle" parent="@android:style/Widget.TextView">
+        <item name="android:textSize">12.0sp</item>
+        <item name="android:textColor">@color/my_gray_5</item>
+    </style>
+    <style name="SlidingMenu.TextView.ItemTitle" parent="@android:style/Widget.TextView">
+        <item name="android:textSize">18.0sp</item>
+        <item name="android:textColor">@android:color/white</item>
+        <item name="android:gravity">center_vertical</item>
+        <item name="android:background">@drawable/selector_menu_item</item>
+        <item name="android:paddingLeft">15.0dip</item>
+        <item name="android:layout_height">60.0dip</item>
+        <item name="android:drawablePadding">15.0dip</item>
+    </style>
+</resources>

@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="colorPrimary">#3F51B5</color>
+    <color name="colorPrimaryDark">#FFFFFF</color>
+    <color name="colorAccent">#FF4081</color>
+    <color name="my_black_1">#000000</color>
+    <color name="my_green_1">#00ff00</color>
+    <color name="my_orange">#F1BF00</color>
+
+    <color name="my_orange_1">#FFFFCD2D</color>
+
+    <color name="my_gray_5">#b0b0b0</color>
+    <color name="my_gray_10">#888888</color>
+    <color name="my_gray_15">#797979</color>
+    <color name="my_gray_30">#525252</color>
+    <color name="my_gray_40">#343434</color>
+
+    <color name="my_transparent">#00000000</color>
+    <color name="my_common_white">#FFFFFFFF</color>
+    <color name="my_white_alpha_1">#14FFFFFF</color>
+    <color name="my_white_alpha_5">#0DFFFFFF</color>
+    <color name="my_white_alpha_50">#7FFFFFFF</color>
+    <color name="my_white_alpha_60">#99FFFFFF</color>
+    <color name="my_white_alpha_65">#A5FFFFFF</color>
+    <color name="my_white_alpha_70">#B2FFFFFF</color>
+    <color name="my_white_alpha_75">#BFFFFFFF</color>
+    <color name="my_white_alpha_80">#CCFFFFFF</color>
+    <color name="my_white_alpha_85">#D8FFFFFF</color>
+    <color name="my_white_alpha_90">#E5FFFFFF</color>
+    <color name="my_white_alpha_95">#F2FFFFFF</color>
+    <color name="my_white_alpha_100">#00FFFFFF</color>
+
+    <color name="my_common_black">#FF000000</color>
+    <color name="my_black_alpha_10">#1A000000</color>
+    <color name="my_black_alpha_25">#40000000</color>
+    <color name="my_black_alpha_30">#4C000000</color>
+    <color name="my_black_alpha_60">#99000000</color>
+    <color name="my_black_alpha_65">#A5000000</color>
+    <color name="my_black_alpha_70">#B2000000</color>
+</resources>

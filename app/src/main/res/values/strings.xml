@@ -1,0 +1,15 @@
+<resources>
+    <string name="app_name">迷乐音乐</string>
+    <string name="find_hint">歌曲/歌手/歌词/专辑</string>
+    <string name="navigation_drawer_open">开navigation drawer</string>
+    <string name="navigation_drawer_close">关navigation drawer</string>
+    <string name="my_music_list">我的歌单</string>
+    <string name="my_music_manager">管理</string>
+
+    <string name="my_local_music">本地歌曲</string>
+    <string name="skip_ad">跳过广告</string>
+    <string name="menu_title">迷乐音乐播放器</string>
+
+
+
+</resources>

@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical"
+    android:id="@+id/ll_local"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    >
+        <RelativeLayout
+            android:id="@+id/rl_local_music"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:paddingLeft="12dp"
+            android:paddingRight="12dp"
+            >
+            <TextView
+                android:id="@+id/tv_my_local_music"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/my_local_music"
+                android:textColor="@color/my_orange"
+                android:textSize="@dimen/text_size_18"
+                android:layout_centerVertical="true"/>
+
+            <ImageView
+                android:id="@+id/iv_my_more"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:paddingTop="10dp"
+                android:paddingBottom="14dp"
+                android:paddingLeft="10dp"
+                android:paddingRight="10dp"
+                android:layout_marginRight="10dp"
+                android:layout_toLeftOf="@+id/ib_my_back"
+                android:src="@mipmap/titlebar_more_normal"
+                android:background="@color/my_transparent"
+                android:layout_centerVertical="true"/>
+            <ImageButton
+                android:id="@+id/ib_my_back"
+                android:layout_alignParentRight="true"
+                android:layout_width="40dp"
+                android:layout_height="50dp"
+                android:src="@mipmap/btn_back"
+                android:background="@color/my_transparent"
+                android:layout_centerVertical="true"
+                />
+        </RelativeLayout>
+        <ListView
+            android:id="@+id/lv_my_music_list"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_below="@+id/rl_local_music"
+            android:background="@color/my_transparent"
+            android:divider="@null">
+
+        </ListView>
+
+
+</RelativeLayout>
