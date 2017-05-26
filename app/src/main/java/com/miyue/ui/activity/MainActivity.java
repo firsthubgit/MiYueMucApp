@@ -1,18 +1,14 @@
 package com.miyue.ui.activity;
 
 import android.Manifest;
-import android.app.Service;
-import android.content.ComponentName;
+import android.app.Fragment;
+import android.app.FragmentManager;
 import android.content.Intent;
-import android.content.ServiceConnection;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.os.Build;
-import android.os.IBinder;
 import android.support.design.widget.TabLayout;
-import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentManager;
-import android.support.v4.app.FragmentPagerAdapter;
+import android.support.v13.app.FragmentPagerAdapter;
 import android.support.v4.media.session.MediaControllerCompat;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.view.ViewPager;
@@ -71,12 +67,13 @@ public class MainActivity extends BaseActivity {
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
                 this, mDrawerLayout, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
         mDrawerLayout.setDrawerListener(toggle);
+        mDrawerLayout.setScrimColor(Color.TRANSPARENT);
         toggle.syncState();
     }
     private void initViewPager(){
         mViewPager = (ViewPager) findViewById(R.id.main_viewpager);
         mViewPager.setOffscreenPageLimit(3);
-        mViewPager.setAdapter(new SectionPagerAdapter(getSupportFragmentManager()));
+        mViewPager.setAdapter(new SectionPagerAdapter(getFragmentManager()));
     }
     /**
      * 设置顶栏透明
@@ -113,6 +110,7 @@ public class MainActivity extends BaseActivity {
             super.onBackPressed();
         }
     }
+
 
     public class SectionPagerAdapter extends FragmentPagerAdapter {
 
@@ -172,10 +170,15 @@ public class MainActivity extends BaseActivity {
         mLrcFragment.registCallback();
         mPlayFragment.setMediaController(mcc);
         mPlayFragment.registCallback();
-
     }
 
+    public void setDrawerLock(){
+        mDrawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_OPEN);
+    }
+    public void setDrawerUnLock(){
+        mDrawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED);
 
+    }
     public void closeDrawer(){
         mDrawerLayout.closeDrawer(GravityCompat.START);
     }

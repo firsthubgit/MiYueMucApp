@@ -1,13 +1,7 @@
 package com.miyue.common.base;
 
-import android.app.Activity;
-import android.content.Context;
-import android.support.annotation.NonNull;
-import android.support.v4.app.Fragment;
-import android.support.v4.media.MediaMetadataCompat;
-import android.support.v4.media.session.MediaControllerCompat;
-import android.support.v4.media.session.PlaybackStateCompat;
 
+import android.app.Fragment;
 import com.miyue.utils.FragmentControl;
 
 

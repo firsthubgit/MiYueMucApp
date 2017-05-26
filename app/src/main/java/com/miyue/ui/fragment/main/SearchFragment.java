@@ -2,18 +2,18 @@ package com.miyue.ui.fragment.main;
 
 import android.os.Bundle;
 import android.support.annotation.Nullable;
-import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
 import com.miyue.R;
+import com.miyue.common.base.BaseFragment;
 
 /**
  * Created by zhangzhendong on 16/3/31.
  */
-public class SearchFragment extends Fragment {
+public class SearchFragment extends BaseFragment {
     private TextView tv_to_frag;
     private int mCurrentlyShowingFragment;
 

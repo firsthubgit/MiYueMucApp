@@ -1,7 +1,6 @@
 package com.miyue.ui.fragment.main;
 
 
-import android.animation.Animator;
 import android.animation.ObjectAnimator;
 import android.animation.ValueAnimator;
 import android.os.Bundle;
@@ -9,7 +8,6 @@ import android.os.Handler;
 import android.os.SystemClock;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
-import android.support.v4.graphics.drawable.RoundedBitmapDrawableFactory;
 import android.support.v4.media.MediaDescriptionCompat;
 import android.support.v4.media.MediaMetadataCompat;
 import android.support.v4.media.session.MediaControllerCompat;
@@ -23,13 +21,10 @@ import android.view.animation.LinearInterpolator;
 import android.widget.ImageView;
 import android.widget.SeekBar;
 import android.widget.TextView;
-import android.widget.Toast;
 
-import com.miyue.application.MiYueApp;
 import com.miyue.application.MiYueConstans;
 import com.miyue.R;
 import com.miyue.common.base.BaseMediaFragment;
-import com.miyue.utils.CommentUtils;
 import com.miyue.utils.UtilLog;
 import com.miyue.widgets.RoundImageView;
 

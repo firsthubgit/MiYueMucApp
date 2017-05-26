@@ -3,8 +3,11 @@ package com.miyue.common.base;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
+import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
 
+import com.miyue.R;
 import com.miyue.utils.FragmentControl;
 import com.miyue.utils.SwipeBackHelper;
 import com.miyue.widgets.SwipeBackLayout;

@@ -1,9 +1,9 @@
 package com.miyue.ui.fragment.menu;
 
+import android.app.Fragment;
 import android.content.Context;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
-import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -12,7 +12,6 @@ import android.widget.TextView;
 
 import com.miyue.R;
 import com.miyue.ui.activity.MainActivity;
-import com.miyue.ui.fragment.my.RecentPlayFragment;
 import com.miyue.utils.DisplayUtils;
 import com.miyue.utils.FragmentControl;
 import com.miyue.utils.UtilLog;
@@ -34,7 +33,7 @@ public class MenuFragment extends Fragment implements View.OnClickListener{
 
     private MainActivity mContext;
 
-
+    private SwitchBgFragment mSwitchBgFragment;
     @Override
     public void onAttach(Context context) {
         super.onAttach(context);
@@ -79,8 +78,12 @@ public class MenuFragment extends Fragment implements View.OnClickListener{
                 break;
             case R.id.txt_background:
                 UtilLog.e("MenuFragment","show background");
-                SwitchBgFragment sbf = new SwitchBgFragment();
-                FragmentControl.getFragConInstance().showMainFragment(sbf,"",0);
+                mContext.setDrawerLock();
+                mSwitchBgFragment = (SwitchBgFragment) FragmentControl.getFragConInstance().getMainFragment("SwitchBgFragment");
+                if(mSwitchBgFragment == null){
+                    mSwitchBgFragment = new SwitchBgFragment();
+                }
+                FragmentControl.getFragConInstance().showMainFragment(mSwitchBgFragment,"SwitchBgFragment",0);
                 break;
             case R.id.txt_sleep:
 

@@ -1,5 +1,6 @@
 package com.miyue.ui.fragment.menu;
 
+import android.content.Context;
 import android.content.res.AssetManager;
 import android.content.res.Resources;
 import android.graphics.Bitmap;
@@ -19,6 +20,7 @@ import android.widget.TextView;
 import com.miyue.R;
 import com.miyue.common.base.BaseSwipeBackFragment;
 import com.miyue.ui.activity.MainActivity;
+import com.miyue.utils.DisplayUtils;
 import com.miyue.utils.FragmentControl;
 
 import java.io.IOException;
@@ -30,33 +32,48 @@ import java.util.List;
  * Created by zhangzhendong on 17/5/25.
  */
 
-public class SwitchBgFragment extends BaseSwipeBackFragment implements AdapterView.OnItemClickListener, View.OnClickListener {
+public class SwitchBgFragment extends BaseSwipeBackFragment implements AdapterView.OnItemClickListener{
 
     private MyAdapter mAdapter;
-    private TextView mBackBtn;
     private List<BgEntity> mBgList;
     private String mDefaultBgPath;
     private GridView mGridView;
+    private TextView tv_back_title;
 //    private SPStorage mSp;
+
+    private MainActivity mContext;
+
+    @Override
+    public void onAttach(Context context) {
+        super.onAttach(context);
+        mContext = (MainActivity)context;
+    }
 
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.frag_menu_background, null);
+        tv_back_title = (TextView) view.findViewById(R.id.tv_back_title);
+        tv_back_title.setPadding(0, DisplayUtils.getStatusBarHeight(mContext),0,0);
 //        mSp = new SPStorage(getActivity());
 //        mDefaultBgPath = this.mSp.getPath();
-//        getData();
-//        initView(view);
+        getData();
+        initView(view);
         return view;
     }
 
     private void initView(View view) {
 //        mBackBtn = (TextView) view.findViewById(R.id.backBtn);
-//        mBackBtn.setOnClickListener(this);
-//        mGridView = (GridView) view.findViewById(R.id.grid_content);
-//        mAdapter = new MyAdapter(mBgList);
-//        mGridView.setOnItemClickListener(this);
-//        mGridView.setAdapter(mAdapter);
+//        mBackBtn.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View v) {
+//
+//            }
+//        });
+        mGridView = (GridView) view.findViewById(R.id.grid_content);
+        mAdapter = new MyAdapter(mBgList);
+        mGridView.setOnItemClickListener(this);
+        mGridView.setAdapter(mAdapter);
     }
 
     @Override
@@ -75,13 +92,6 @@ public class SwitchBgFragment extends BaseSwipeBackFragment implements AdapterVi
         FragmentControl.getFragConInstance().closeFragment(this, 0);
     }
 
-    private class BgEntity {
-            Bitmap bitmap;
-            String path;
-
-            private BgEntity() {
-            }
-        }
 
     private class MyAdapter extends BaseAdapter {
         private List<BgEntity> bgList;
@@ -90,22 +100,19 @@ public class SwitchBgFragment extends BaseSwipeBackFragment implements AdapterVi
         private class ViewHolder {
             ImageView backgroundIv;
             ImageView checkedIv;
-
-            private ViewHolder() {
-            }
         }
 
         public MyAdapter(List<BgEntity> list) {
-            this.bgList = list;
-            this.resources = SwitchBgFragment.this.getActivity().getResources();
+            bgList = list;
+            resources = getActivity().getResources();
         }
 
         public int getCount() {
-            return this.bgList.size();
+            return bgList.size();
         }
 
         public BgEntity getItem(int position) {
-            return (BgEntity) this.bgList.get(position);
+            return (BgEntity) bgList.get(position);
         }
 
         public long getItemId(int position) {
@@ -123,7 +130,7 @@ public class SwitchBgFragment extends BaseSwipeBackFragment implements AdapterVi
             } else {
                 viewHolder = (ViewHolder) convertView.getTag();
             }
-            viewHolder.backgroundIv.setBackgroundDrawable(new BitmapDrawable(this.resources, getItem(position).bitmap));
+            viewHolder.backgroundIv.setBackgroundDrawable(new BitmapDrawable(resources, getItem(position).bitmap));
             if (getItem(position).path.equals(SwitchBgFragment.this.mDefaultBgPath)) {
                 viewHolder.checkedIv.setVisibility(View.VISIBLE);
             } else {
@@ -155,9 +162,18 @@ public class SwitchBgFragment extends BaseSwipeBackFragment implements AdapterVi
     }
 
 
+    private class BgEntity {
+        Bitmap bitmap;
+        String path;
 
+        private BgEntity() {
+        }
+    }
 
-    public void onClick(View v) {
+    @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+        mContext.setDrawerUnLock();
 
     }
 }

@@ -4,8 +4,8 @@
                 android:layout_height="80dp">
 
     <LinearLayout
-        android:layout_width="20dp"
-        android:layout_height="80dp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
         android:background="@drawable/skin_img_item_background">
 
         <ImageView
