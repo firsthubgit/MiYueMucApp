@@ -24,11 +24,9 @@ public class SwipeBackLayout extends FrameLayout {
 
     private int mTouchSlop;
     private Scroller mScroller;
-    private View mContentView;
     private boolean mGestureEnable = true;
     private int downX, downY, tempX, moveX;
     private VelocityTracker mVelocityTracker;
-    private int minmumFilingVelocity;
     /**是否正在滑动*/
     private boolean isSliding;
 
@@ -63,6 +61,24 @@ public class SwipeBackLayout extends FrameLayout {
         mGestureEnable = enable;
     }
 
+    @Override
+    public boolean onInterceptTouchEvent(MotionEvent ev) {
+        boolean isIntercept = false;
+        switch (ev.getAction()){
+            case MotionEvent.ACTION_DOWN:
+                downX = tempX = (int) ev.getRawX();
+                downY = (int) ev.getRawY();
+                break;
+            case MotionEvent.ACTION_MOVE:
+                int x = (int) Math.abs(ev.getRawX()-downX);
+                int y = (int) Math.abs(ev.getRawY()-downY);
+                if(x >y){
+                    return true;
+                }
+                break;
+        }
+        return super.onInterceptTouchEvent(ev);
+    }
 
     @Override
     public boolean onTouchEvent(MotionEvent event) {
