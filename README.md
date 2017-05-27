@@ -12,8 +12,6 @@
 部分idea来自QQ音乐 酷我音乐
 
 效果图：</br>
-<img src="https://github.com/firsthubgit/MiYueMucApp/blob/master/screenshot/1.png" width=480 height=800/>
-<img src="https://github.com/firsthubgit/MiYueMucApp/blob/master/screenshot/2.png" width=480 height=800/>
-<img src="https://github.com/firsthubgit/MiYueMucApp/blob/master/screenshot/3.png" width=480 height=800/>
-<img src="https://github.com/firsthubgit/MiYueMucApp/blob/master/screenshot/4.png" width=480 height=800/>
+<img src="https://github.com/firsthubgit/MiYueMucApp/blob/master/screenshot/1.png" width=480 height=800/><img src="https://github.com/firsthubgit/MiYueMucApp/blob/master/screenshot/2.png" width=480 height=800/>
+<img src="https://github.com/firsthubgit/MiYueMucApp/blob/master/screenshot/3.png" width=480 height=800/><img src="https://github.com/firsthubgit/MiYueMucApp/blob/master/screenshot/4.png" width=480 height=800/>
 <img src="https://github.com/firsthubgit/MiYueMucApp/blob/master/screenshot/5.png" width=480 height=800/>
