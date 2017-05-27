@@ -50,10 +50,6 @@ public class SwipeBackLayout extends FrameLayout {
         mTouchSlop = ViewConfiguration.get(context).getScaledTouchSlop();
         mScroller = new Scroller(context);
         mShadowDrawable = getResources().getDrawable(R.drawable.shadow_left);
-//        FrameLayout.LayoutParams lpm =
-//                new FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
-//                        ViewGroup.LayoutParams.MATCH_PARENT);
-//        setLayoutParams(lpm);
     }
 
     /**设为true滑动,false不滑动*/
@@ -63,7 +59,6 @@ public class SwipeBackLayout extends FrameLayout {
 
     @Override
     public boolean onInterceptTouchEvent(MotionEvent ev) {
-        boolean isIntercept = false;
         switch (ev.getAction()){
             case MotionEvent.ACTION_DOWN:
                 downX = tempX = (int) ev.getRawX();

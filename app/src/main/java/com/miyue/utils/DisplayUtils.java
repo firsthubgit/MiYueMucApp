@@ -11,6 +11,8 @@ public class DisplayUtils {
 
     public static int screenWidth = 0;
 
+    public static int screenHeight = 0;
+
     /**获取屏幕的宽度*/
     public static int getScreenWidth(Context context){
         if(screenWidth != 0){
@@ -22,6 +24,18 @@ public class DisplayUtils {
         wm.getDefaultDisplay().getMetrics(dm);
         screenWidth = dm.widthPixels;
         return screenWidth;
+    }
+    /**获取屏幕的高度*/
+    public static int getScreenHeight(Context context){
+        if(screenHeight != 0){
+            return screenHeight;
+        }
+        DisplayMetrics dm = new DisplayMetrics();
+        WindowManager wm = (WindowManager) context.getSystemService(Context.WINDOW_SERVICE);
+        //取得窗口属性
+        wm.getDefaultDisplay().getMetrics(dm);
+        screenHeight = dm.heightPixels;
+        return screenHeight;
     }
 
     /**获取状态栏的高度*/

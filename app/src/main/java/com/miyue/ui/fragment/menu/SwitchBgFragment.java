@@ -5,6 +5,7 @@ import android.content.res.AssetManager;
 import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Color;
 import android.graphics.drawable.BitmapDrawable;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
@@ -13,8 +14,11 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.BaseAdapter;
+import android.widget.CheckBox;
 import android.widget.GridView;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.miyue.R;
@@ -36,13 +40,15 @@ public class SwitchBgFragment extends BaseSwipeBackFragment implements AdapterVi
 
     private MyAdapter mAdapter;
     private List<BgEntity> mBgList;
+    /**默认的路径，给个小图标*/
     private String mDefaultBgPath;
     private GridView mGridView;
-    private TextView tv_back_title;
-//    private SPStorage mSp;
-
+    private TextView tv_bckg_title;
+    private ImageView iv_mannag_skin;
     private MainActivity mContext;
 
+    private boolean mIsCanDelete = false;
+    private RelativeLayout ll_title;
     @Override
     public void onAttach(Context context) {
         super.onAttach(context);
@@ -53,38 +59,55 @@ public class SwitchBgFragment extends BaseSwipeBackFragment implements AdapterVi
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.frag_menu_background, null);
-        tv_back_title = (TextView) view.findViewById(R.id.tv_back_title);
-        tv_back_title.setPadding(0, DisplayUtils.getStatusBarHeight(mContext),0,0);
-//        mSp = new SPStorage(getActivity());
-//        mDefaultBgPath = this.mSp.getPath();
         getData();
         initView(view);
+        initListener();
         return view;
     }
 
+
     private void initView(View view) {
-//        mBackBtn = (TextView) view.findViewById(R.id.backBtn);
-//        mBackBtn.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View v) {
-//
-//            }
-//        });
+        int barHeight = DisplayUtils.getStatusBarHeight(mContext);
+        ll_title = (RelativeLayout) view.findViewById(R.id.ll_title);
+        tv_bckg_title = (TextView) view.findViewById(R.id.tv_bckg_title);
+        ll_title.setPadding(0,
+                barHeight + DisplayUtils.dip2px(mContext,10),0,0);
+        iv_mannag_skin = (ImageView) view.findViewById(R.id.iv_mannag_skin);
         mGridView = (GridView) view.findViewById(R.id.grid_content);
+        int space = ((DisplayUtils.getScreenWidth(mContext)/4) - 40)/2;
+        mGridView.setHorizontalSpacing(space);
+        mGridView.setVerticalSpacing(space);
         mAdapter = new MyAdapter(mBgList);
         mGridView.setOnItemClickListener(this);
         mGridView.setAdapter(mAdapter);
     }
+    private void initListener() {
+        iv_mannag_skin.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if(!mIsCanDelete){
+                    mIsCanDelete = true;
+                    iv_mannag_skin.setBackgroundResource(R.drawable.skin_complete_normal);
+                    mAdapter.setDeleteState(true);
+                    mAdapter.notifyDataSetChanged();
+                } else {
+                    mIsCanDelete = false;
+                    iv_mannag_skin.setBackgroundResource(R.drawable.skin_edit_normal);
+                    mAdapter.setDeleteState(false);
+                    mAdapter.notifyDataSetChanged();
+                }
+            }
+        });
+    }
 
     @Override
     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-        String path = this.mAdapter.getItem(position).path;
-//        mSp.savePath(path);
+        if(position==0){
+            return;
+        }
+        String path = this.mAdapter.getItem(position-1).path;
         mDefaultBgPath = path;
         mAdapter.notifyDataSetChanged();
-//        Intent intent = new Intent(MiYueConstans.BROADCAST_CHANGEBG);
-//        intent.putExtra("path", path);
-//        getActivity().sendBroadcast(intent);
     }
 
     @Override
@@ -92,49 +115,78 @@ public class SwitchBgFragment extends BaseSwipeBackFragment implements AdapterVi
         FragmentControl.getFragConInstance().closeFragment(this, 0);
     }
 
+    @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+        mContext.setDrawerUnLock();
+    }
+
+
+
 
     private class MyAdapter extends BaseAdapter {
         private List<BgEntity> bgList;
-        private Resources resources;
+
+        /**是否是删除状态*/
+        private boolean mIsDeleteState = false;
 
         private class ViewHolder {
-            ImageView backgroundIv;
-            ImageView checkedIv;
+            ImageView iv_item_bg;
+            ImageView iv_item_checked;
         }
 
         public MyAdapter(List<BgEntity> list) {
             bgList = list;
-            resources = getActivity().getResources();
         }
 
+        public void setDeleteState(boolean state){
+            mIsDeleteState = state;
+        }
         public int getCount() {
-            return bgList.size();
+            return mIsDeleteState ? bgList.size() : bgList.size()+1;
         }
 
         public BgEntity getItem(int position) {
-            return (BgEntity) bgList.get(position);
+            return mIsDeleteState ? bgList.get(position) : bgList.get(position);
         }
 
         public long getItemId(int position) {
-            return (long) position;
+            return position;
         }
 
         public View getView(int position, View convertView, ViewGroup parent) {
             ViewHolder viewHolder;
             if (convertView == null) {
                 viewHolder = new ViewHolder();
+
                 convertView = MainActivity.getActivity().getLayoutInflater().inflate(R.layout.item_backgroud_gridview, null);
-                viewHolder.backgroundIv = (ImageView) convertView.findViewById(R.id.gridview_item_iv);
-                viewHolder.checkedIv = (ImageView) convertView.findViewById(R.id.gridview_item_checked_iv);
+                convertView.setLayoutParams(new ViewGroup.LayoutParams(
+                        DisplayUtils.getScreenWidth(mContext)/4+5,
+                        DisplayUtils.getScreenHeight(mContext)/4+5));
+                viewHolder.iv_item_bg = (ImageView) convertView.findViewById(R.id.iv_item_bg);
+                viewHolder.iv_item_checked = (ImageView) convertView.findViewById(R.id.iv_item_checked);
                 convertView.setTag(viewHolder);
             } else {
                 viewHolder = (ViewHolder) convertView.getTag();
             }
-            viewHolder.backgroundIv.setBackgroundDrawable(new BitmapDrawable(resources, getItem(position).bitmap));
-            if (getItem(position).path.equals(SwitchBgFragment.this.mDefaultBgPath)) {
-                viewHolder.checkedIv.setVisibility(View.VISIBLE);
+
+
+            if(position==0 && !mIsDeleteState){
+                viewHolder.iv_item_bg.setImageResource(R.drawable.add_skin);
+                viewHolder.iv_item_bg.setBackgroundResource(R.drawable.skin_background);
+                viewHolder.iv_item_checked.setVisibility(View.GONE);
             } else {
-                viewHolder.checkedIv.setVisibility(View.GONE);
+                if(mIsDeleteState){//表示删除模式
+                    viewHolder.iv_item_bg.setImageBitmap(getItem(position).bitmap);
+                    viewHolder.iv_item_checked.setVisibility(View.GONE);
+                } else {// 非删除模式，会多一个item
+                    viewHolder.iv_item_bg.setImageBitmap(getItem(position-1).bitmap);
+                    if (getItem(position-1).path.equals(mDefaultBgPath)) {
+                        viewHolder.iv_item_checked.setVisibility(View.VISIBLE);
+                    } else {
+                        viewHolder.iv_item_checked.setVisibility(View.GONE);
+                    }
+                }
             }
             return convertView;
         }
@@ -165,15 +217,9 @@ public class SwitchBgFragment extends BaseSwipeBackFragment implements AdapterVi
     private class BgEntity {
         Bitmap bitmap;
         String path;
-
         private BgEntity() {
         }
     }
 
-    @Override
-    public void onDestroyView() {
-        super.onDestroyView();
-        mContext.setDrawerUnLock();
 
-    }
 }
