@@ -11,9 +11,9 @@
 但是这个demo有个bug，详见博客：http://blog.csdn.net/u010232308/article/details/72620942
 部分idea来自QQ音乐 酷我音乐
 
-效果图：
-![1.png](https://github.com/firsthubgit/MiYueMucApp/blob/master/screenshot/1.png)
-![2.png](https://github.com/firsthubgit/MiYueMucApp/blob/master/screenshot/2.png)
-![3.png](https://github.com/firsthubgit/MiYueMucApp/blob/master/screenshot/3.png)
-![4.png](https://github.com/firsthubgit/MiYueMucApp/blob/master/screenshot/4.png)
-![5.png](https://github.com/firsthubgit/MiYueMucApp/blob/master/screenshot/5.png)
+效果图：</br>
+<img src="https://github.com/firsthubgit/MiYueMucApp/blob/master/screenshot/1.png" width=320 height=569/>
+<img src="https://github.com/firsthubgit/MiYueMucApp/blob/master/screenshot/2.png" width=320 height=569/>
+<img src="https://github.com/firsthubgit/MiYueMucApp/blob/master/screenshot/3.png" width=320 height=569/>
+<img src="https://github.com/firsthubgit/MiYueMucApp/blob/master/screenshot/4.png" width=320 height=569/>
+<img src="https://github.com/firsthubgit/MiYueMucApp/blob/master/screenshot/5.png" width=320 height=569/>
