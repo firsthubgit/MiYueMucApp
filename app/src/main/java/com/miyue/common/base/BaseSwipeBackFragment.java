@@ -39,6 +39,12 @@ public abstract class BaseSwipeBackFragment extends BaseFragment implements Swip
     public abstract void onBackFinish();
 
     @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+        mHelper.detachView();
+    }
+
+    @Override
     public void finish() {
         onBackFinish();
     }

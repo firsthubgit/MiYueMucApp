@@ -1,4 +1,4 @@
-package com.miyue.common.bean;
+package com.miyue.bean;
 
 /**
  * Created by zhangzhendong on 17/5/25.
@@ -86,7 +86,11 @@ public class LrcRow implements Comparable<LrcRow> {
      * @return
      */
     public static final List<LrcRow> createRows(String lrcLine) {
-        if (!lrcLine.startsWith("[") || lrcLine.indexOf("]") != 9) {
+        if (!lrcLine.startsWith("[")) {
+            return null;
+        }
+        //有些歌词第10个为']'
+        if(lrcLine.indexOf("]") != 9 && lrcLine.indexOf("]") != 10){
             return null;
         }
         //最后一个"]"
@@ -117,7 +121,7 @@ public class LrcRow implements Comparable<LrcRow> {
     /****
      * 把歌词时间转换为毫秒值  如 将00:10.00  转为10000
      *
-     * @param tem
+     * @param
      * @return
      */
     private static int formatTime(String timeStr) {

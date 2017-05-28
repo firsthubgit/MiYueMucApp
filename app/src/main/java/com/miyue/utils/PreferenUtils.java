@@ -33,10 +33,14 @@ public class PreferenUtils {
         editor.commit();
     }
 
-    public void putBgPath(String path){
+    public PreferenUtils putBgPath(String path){
         final SharedPreferences.Editor editor = mPreferences.edit();
         editor.putString(BACKGROUND_PATH, path);
         editor.apply();
+        return sInstance;
     }
 
+    public String getBgPath(){
+        return mPreferences.getString(BACKGROUND_PATH, "");
+    }
 }

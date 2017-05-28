@@ -24,6 +24,10 @@ public class SwipeBackHelper {
         swipeBackLayout.attachToFragment(swipeBackFragment);
     }
 
+    public void detachView(){
+        swipeBackLayout.detachView(swipeBackFragment);
+        swipeBackLayout = null;
+    }
     public SwipeBackLayout getSwipeBackLayout(){
         return swipeBackLayout;
     }

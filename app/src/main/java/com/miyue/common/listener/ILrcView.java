@@ -2,7 +2,7 @@ package com.miyue.common.listener;
 
 import android.content.Context;
 
-import com.miyue.common.bean.LrcRow;
+import com.miyue.bean.LrcRow;
 
 import java.util.List;
 

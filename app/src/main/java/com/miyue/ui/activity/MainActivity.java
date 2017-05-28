@@ -5,7 +5,11 @@ import android.app.Fragment;
 import android.app.FragmentManager;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.content.res.AssetManager;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.Color;
+import android.graphics.drawable.BitmapDrawable;
 import android.os.Build;
 import android.support.design.widget.TabLayout;
 import android.support.v13.app.FragmentPagerAdapter;
@@ -18,6 +22,8 @@ import android.os.Bundle;
 import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
+import android.widget.ImageView;
+import android.widget.RelativeLayout;
 
 import com.miyue.R;
 import com.miyue.common.base.BaseActivity;
@@ -27,7 +33,12 @@ import com.miyue.ui.fragment.main.MyMusicFragment;
 import com.miyue.ui.fragment.main.PlayFragment;
 import com.miyue.ui.fragment.main.SearchFragment;
 import com.miyue.utils.DisplayUtils;
+import com.miyue.utils.PreferenUtils;
+import com.miyue.utils.SkinUtils;
 import com.miyue.utils.UtilLog;
+
+import java.io.IOException;
+import java.io.InputStream;
 
 public class MainActivity extends BaseActivity {
 
@@ -37,7 +48,7 @@ public class MainActivity extends BaseActivity {
     private ViewPager mViewPager;
 
     private DrawerLayout mDrawerLayout;
-
+    private RelativeLayout rl_main_skin;
     public static MainActivity getActivity(){
         return mainActivity ;
     }
@@ -45,12 +56,14 @@ public class MainActivity extends BaseActivity {
     private PlayFragment mPlayFragment = new PlayFragment();
     private LrcFragment mLrcFragment = new LrcFragment();
 
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
         setContentView(R.layout.activity_main);
         mainActivity = this;
+
+        rl_main_skin = (RelativeLayout) findViewById(R.id.rl_main_skin);
 
         setWindowTopTrans();
         initDrawerLayout();
@@ -60,6 +73,9 @@ public class MainActivity extends BaseActivity {
         tabLayout.setTabMode(TabLayout.MODE_FIXED);
         tabLayout.setupWithViewPager(mViewPager);
         mPlayFragment.setSeekBarChangeListener(mLrcFragment);
+
+        //初始化背景
+        SkinUtils.initBackground(this, rl_main_skin);
     }
 
     private void initDrawerLayout(){
@@ -180,6 +196,14 @@ public class MainActivity extends BaseActivity {
 
     }
     public void closeDrawer(){
-        mDrawerLayout.closeDrawer(GravityCompat.START);
+        mDrawerLayout.closeDrawer(GravityCompat.START, false);
     }
+
+    /**
+     * 更新背景图
+     * */
+    public void udpateBackground(){
+        SkinUtils.initBackground(this, rl_main_skin);
+    }
+
 }

@@ -8,6 +8,10 @@ import android.support.v4.media.MediaBrowserCompat;
 import android.support.v4.media.session.MediaControllerCompat;
 import android.support.v4.media.session.MediaSessionCompat;
 import android.support.v7.app.AppCompatActivity;
+import android.view.Gravity;
+import android.view.View;
+import android.widget.LinearLayout;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.miyue.service.PlayerService;
@@ -87,6 +91,9 @@ public class BaseActivity extends AppCompatActivity {
 
     public void showText(String text){
         mToast.setText(text);
+        LinearLayout ll = (LinearLayout) mToast.getView();
+        TextView tv = (TextView) ll.getChildAt(0);
+        tv.setGravity(Gravity.CENTER_HORIZONTAL);
         mToast.show();
     }
 

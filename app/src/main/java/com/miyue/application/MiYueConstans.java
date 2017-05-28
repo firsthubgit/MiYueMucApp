@@ -1,5 +1,7 @@
 package com.miyue.application;
 
+import android.os.Environment;
+
 /**
  * Created by zhangzhendong on 16/4/13.
  */
@@ -17,6 +19,8 @@ public class MiYueConstans {
      /**循环播放*/
      public static final int MODE_LOOPER = 3;
 
+     public static final String LRC_PATH = Environment.getExternalStorageDirectory().getAbsolutePath()
+             + "/Music/Lrc/";
 
      // Extra on MediaSession that contains the Cast device name currently connected to
      public static final String EXTRA_CONNECTED_CAST = "com.example.android.uamp.CAST_NAME";

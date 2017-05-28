@@ -227,6 +227,12 @@ public class SwipeBackLayout extends FrameLayout {
         rootview.addView(this);
     }
 
+    public void detachView(BaseSwipeBackFragment fragment){
+        ViewGroup rootview = (ViewGroup) fragment.getView();
+        ViewGroup childView = (ViewGroup) rootview.getChildAt(0);
+        rootview.removeView(childView);
+    }
+
     /**
      * 回收速度追踪器
      */

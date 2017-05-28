@@ -19,7 +19,7 @@ import android.widget.Scroller;
 
 import com.miyue.R;
 import com.miyue.application.MiYueApp;
-import com.miyue.common.bean.LrcRow;
+import com.miyue.bean.LrcRow;
 import com.miyue.common.listener.ILrcView;
 import com.miyue.utils.DisplayUtils;
 
@@ -210,10 +210,10 @@ public class LrcView extends View implements ILrcView {
         super.onDraw(canvas);
         if (mLrcRows == null || mLrcRows.size() == 0) {
             //画默认的显示文字
-            mPaintForOtherLrc.setTextSize(SIZE_FOR_DEFAULT_TEXT);
-            float textWidth = mPaintForOtherLrc.measureText(DEFAULT_TEXT);
-            float textX = (getWidth() - textWidth) / 2;
-            canvas.drawText(DEFAULT_TEXT, textX, getHeight() / 2, mPaintForOtherLrc);
+//            mPaintForOtherLrc.setTextSize(SIZE_FOR_DEFAULT_TEXT);
+//            float textWidth = mPaintForOtherLrc.measureText(DEFAULT_TEXT);
+//            float textX = (getWidth() - textWidth) / 2;
+//            canvas.drawText(DEFAULT_TEXT, textX, getHeight() / 2, mPaintForOtherLrc);
             return;
         }
         if (mTotleDrawRow == 0) {
@@ -599,7 +599,7 @@ public class LrcView extends View implements ILrcView {
     }
 
     private OnLrcClickListener onLrcClickListener;
-    //可以滑动歌词直接跳转到相应部分播放，不喜欢这个功能
+
     public void setOnLrcClickListener(OnLrcClickListener onLrcClickListener) {
         this.onLrcClickListener = onLrcClickListener;
     }

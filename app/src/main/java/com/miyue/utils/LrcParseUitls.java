@@ -2,7 +2,7 @@ package com.miyue.utils;
 
 import android.text.TextUtils;
 
-import com.miyue.common.bean.LrcRow;
+import com.miyue.bean.LrcRow;
 
 import java.io.BufferedReader;
 import java.io.IOException;

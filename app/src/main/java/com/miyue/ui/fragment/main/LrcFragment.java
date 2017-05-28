@@ -1,30 +1,25 @@
 package com.miyue.ui.fragment.main;
 
+import android.os.AsyncTask;
 import android.os.Bundle;
-import android.os.Environment;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
-import android.support.v4.app.Fragment;
 import android.support.v4.media.MediaMetadataCompat;
 import android.support.v4.media.session.PlaybackStateCompat;
+import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
 import com.miyue.R;
+import com.miyue.application.MiYueConstans;
 import com.miyue.common.base.BaseMediaFragment;
-import com.miyue.common.bean.LrcRow;
-import com.miyue.dao.MusicProvider;
-import com.miyue.utils.LrcParseUitls;
+import com.miyue.bean.LrcRow;
+import com.miyue.http.HttpApi;
+import com.miyue.utils.FileUtils;
 import com.miyue.widgets.LrcView;
 
-import java.io.BufferedReader;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.util.List;
 
 /**
@@ -34,8 +29,16 @@ import java.util.List;
 */
 public class LrcFragment extends BaseMediaFragment implements PlayFragment.SeekBarChangeListener{
 
+    public static final String TAG = "LrcFragment";
     private LrcView mLrc_view;
     private TextView tv_down_lrc;
+
+    private String mTitle;
+    private String mArtist;
+
+    private QureyLRCTask mQureyLRCTask;
+    /**当前歌曲查找歌词，第一次点击*/
+    private boolean isFirstClick = true;
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
@@ -53,6 +56,17 @@ public class LrcFragment extends BaseMediaFragment implements PlayFragment.SeekB
                 mMediaControllerCompat.getTransportControls().seekTo(progress);
             }
         });
+        tv_down_lrc.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if(isFirstClick){
+                    isFirstClick = false;
+                    getQueryLrcTask();
+                } else {
+                    mActivity.showText("没有歌词!\n再戳，再戳我就自爆!!!");
+                }
+            }
+        });
     }
 
 
@@ -61,9 +75,9 @@ public class LrcFragment extends BaseMediaFragment implements PlayFragment.SeekB
     }
 
     public void updateLrc(String name) {
-        List<LrcRow> list = getLrcRows(name);
+        List<LrcRow> list = FileUtils.getLrcRows(name);
         if (list != null && list.size() > 0) {
-            tv_down_lrc.setVisibility(View.INVISIBLE);
+            tv_down_lrc.setVisibility(View.GONE);
             mLrc_view.setLrcRows(list);
         } else {
             tv_down_lrc.setVisibility(View.VISIBLE);
@@ -71,34 +85,8 @@ public class LrcFragment extends BaseMediaFragment implements PlayFragment.SeekB
         }
     }
 
-    private List<LrcRow> getLrcRows(String name) {
 
-        List<LrcRow> rows = null;
-        InputStream is = null;
-        try {
-            is = new FileInputStream(Environment.getExternalStorageDirectory().getAbsolutePath() +
-                    "/Music/Lrc/" + name + ".lrc");
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
-        } finally {
-            if (is == null) {
-                return null;
-            }
-        }
-        BufferedReader br = new BufferedReader(new InputStreamReader(is));
-        String line;
-        StringBuilder sb = new StringBuilder();
-        try {
-            while ((line = br.readLine()) != null) {
-                sb.append(line + "\n");
-            }
-            rows = LrcParseUitls.getIstance().getLrcRows(sb.toString());
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        return rows;
-    }
-////////////////////////////////////////////////////////////
+/*****************************************************************************************/
     @Override
     public void onPlaybackStateChangedForClien(@NonNull PlaybackStateCompat state) {
     }
@@ -106,19 +94,11 @@ public class LrcFragment extends BaseMediaFragment implements PlayFragment.SeekB
     @Override
     public void onMetadataChangedForClien(MediaMetadataCompat metadata) {
         if (metadata != null) {
-            String name = metadata.getBundle().getString(MusicProvider.MEDIA_FILE_NAME);
-            String realname;
-            if("".equals(name) || name == null){
-                realname = (String) metadata.getDescription().getTitle();
-            } else {
-                int pos = name.lastIndexOf(".");
-                if(pos == -1){
-                    realname = name;
-                } else {
-                    realname = name.substring(0,name.lastIndexOf("."));
-                }
-            }
-            updateLrc(realname);
+            isFirstClick = true;
+            Bundle metaBundle = metadata.getBundle();
+            mTitle = metaBundle.getString(MediaMetadataCompat.METADATA_KEY_TITLE);
+            mArtist = metaBundle.getString(MediaMetadataCompat.METADATA_KEY_ARTIST);
+            updateLrc(mTitle + ":" + mArtist);
         }
     }
 
@@ -129,5 +109,38 @@ public class LrcFragment extends BaseMediaFragment implements PlayFragment.SeekB
     @Override
     public void onSeekBarChanged(int progress, boolean fromUser) {
         mLrc_view.seekTo(progress, true, fromUser);
+    }
+
+
+    public void getQueryLrcTask(){
+        if (mQureyLRCTask != null && (mQureyLRCTask.getStatus().equals(AsyncTask.Status.RUNNING)
+                || mQureyLRCTask.getStatus().equals(AsyncTask.Status.PENDING))) {
+            mQureyLRCTask.cancel(true);
+        }
+        mQureyLRCTask = new QureyLRCTask();
+        mQureyLRCTask.execute(mTitle, mArtist);
+    }
+
+
+    public class QureyLRCTask extends AsyncTask<String, Void, String>{
+
+        @Override
+        protected String doInBackground(String... params) {
+            String lrc = HttpApi.getLrc(params);
+            if(lrc == null){
+                return null;
+            }
+            FileUtils.downLrc(lrc, MiYueConstans.LRC_PATH+ params[0]+ ":"+ params[1] + ".lrc");
+            return lrc;
+        }
+        @Override
+        protected void onPostExecute(String s) {
+            super.onPostExecute(s);
+            if(TextUtils.isEmpty(s)){
+                mActivity.showText("没有找到歌词");
+            }else{
+                updateLrc(mTitle + ":" + mArtist);
+            }
+        }
     }
 }

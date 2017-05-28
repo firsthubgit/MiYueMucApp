@@ -1,8 +1,18 @@
 package com.miyue.utils;
 
 import android.content.Context;
+import android.content.res.AssetManager;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.graphics.drawable.BitmapDrawable;
 import android.util.DisplayMetrics;
 import android.view.WindowManager;
+import android.widget.RelativeLayout;
+
+import com.miyue.R;
+
+import java.io.IOException;
+import java.io.InputStream;
 
 
 public class DisplayUtils {
@@ -64,4 +74,30 @@ public class DisplayUtils {
         final float scale = context.getResources().getDisplayMetrics().density;
         return (int) (pxValue / scale + 0.5f);
     }
+
+
+    /**
+     * 设置背景图片
+     * */
+    public void initBackground(Context context,RelativeLayout allback) {
+        AssetManager am = context.getAssets();
+        String path = PreferenUtils.getInstance(context).getBgPath();
+
+        if("".equals(path) || path == null){
+            allback.setBackgroundResource(R.drawable.backgroud);
+            return;
+        }
+        InputStream is = null;
+        Bitmap bitmap = null;
+        try {
+            is = am.open("bkgs/"+path);
+            bitmap = BitmapFactory.decodeStream(is);
+            allback.setBackground(new BitmapDrawable(context.getResources(), bitmap));
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+    }
+
+
 }

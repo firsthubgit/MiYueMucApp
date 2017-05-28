@@ -76,8 +76,7 @@ public class SplashActivity extends Activity {
         if(Build.VERSION.SDK_INT >= 23){
             int hasPermission = checkSelfPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE);
             if (hasPermission != PackageManager.PERMISSION_GRANTED) {
-                requestPermissions(new String[] {Manifest.permission.WRITE_EXTERNAL_STORAGE},
-                        666);
+                requestPermissions(new String[] {Manifest.permission.WRITE_EXTERNAL_STORAGE}, 666);
                 return;
             }
         }
