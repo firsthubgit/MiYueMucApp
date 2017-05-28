@@ -3,7 +3,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content">
 
-    <LinearLayout
+    <RelativeLayout
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         >
@@ -12,7 +12,19 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:scaleType="center"/>
-    </LinearLayout>
+        <TextView
+            android:id="@+id/tv_skin_delete"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textSize="14sp"
+            android:textColor="#ffffff"
+            android:gravity="center_horizontal"
+            android:background="#9a000000"
+            android:text="删除"
+            android:padding="6dp"
+            android:layout_alignParentTop="true"
+            android:layout_centerHorizontal="true" />
+    </RelativeLayout>
 
     <ImageView
         android:id="@+id/iv_item_checked"

@@ -5,11 +5,11 @@
     android:layout_height="fill_parent"
     >
 
-    <ImageView
-        android:id="@+id/iv_skin"
+    <RelativeLayout
+        android:id="@+id/rl_main_skin"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:background="@mipmap/backgroud"
+        android:background="@drawable/backgroud"
         />
     <View
         android:background="@color/my_black_alpha_30"

@@ -5,9 +5,9 @@
     android:layout_height="fill_parent"
     >
     <RelativeLayout
+        android:id="@+id/rl_all_background"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:background="@mipmap/backgroud"
         >
         <View
             android:background="@color/my_black_alpha_30"
@@ -16,7 +16,7 @@
             />
 
         <RelativeLayout
-            android:id="@+id/ll_title"
+            android:id="@+id/rl_title"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             >
@@ -50,7 +50,7 @@
             android:id="@+id/grid_content"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:layout_below="@id/ll_title"
+            android:layout_below="@id/rl_title"
             android:layout_marginBottom="20dp"
             android:layout_marginLeft="13dp"
             android:layout_marginRight="13dp"

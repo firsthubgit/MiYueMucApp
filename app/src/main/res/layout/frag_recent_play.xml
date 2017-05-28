@@ -6,7 +6,7 @@
     <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:background="@mipmap/backgroud"
+        android:background="@drawable/backgroud"
         >
         <View
             android:id="@+id/v_click"
