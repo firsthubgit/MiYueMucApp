@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+              xmlns:tools="http://schemas.android.com/tools"
     android:orientation="vertical"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
@@ -35,8 +36,8 @@
         <LinearLayout
             android:id="@+id/ll_local_music_list"
             android:orientation="vertical"
-            android:layout_toLeftOf="@+id/iv_list_icon"
-            android:layout_toRightOf="@+id/tv_music_order"
+            android:layout_toLeftOf="@id/iv_list_icon"
+            android:layout_toRightOf="@id/tv_music_order"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_centerVertical="true">
@@ -49,16 +50,30 @@
                 style="@style/TextColorWhite"
                 android:ellipsize="end"
                 android:maxLines="1"
-                android:text="哈哈"/>
+                tools:text="哈哈"/>
             <TextView
                 android:id="@+id/tv_music_singer"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:textSize="@dimen/text_size_12"
+                android:textSize="@dimen/text_size_13"
                 style="@style/TextColorWhite60"
                 android:maxLines="1"
                 android:ellipsize="end"
-                android:text="我是"/>
+                tools:text="我是"/>
+
+            <TextView
+                android:id="@+id/tv_lrc_sou"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:drawableLeft="@drawable/lrc_search"
+                android:gravity="center_vertical"
+                android:drawablePadding="4dp"
+                android:textColor="@color/my_white_alpha_75"
+                android:singleLine="true"
+                tools:text="天青色等烟雨而我在等你"
+                android:textSize="@dimen/text_size_13"
+                android:visibility="gone"
+                />
         </LinearLayout>
     </RelativeLayout>
     <View

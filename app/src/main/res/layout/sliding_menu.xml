@@ -4,14 +4,14 @@
     android:id="@+id/rl_sliding_menu"
     android:layout_width="fill_parent"
     android:layout_height="fill_parent"
-    android:background="@color/my_gray_40"
+    android:background="@drawable/shape_menu_bg"
+    android:clickable="true"
     >
 
     <LinearLayout
         android:id="@+id/frm_user_info"
         android:layout_width="fill_parent"
         android:layout_height="100dip"
-        android:background="@mipmap/top_login_panel_background"
         android:gravity="center_vertical"
         android:orientation="vertical"
         android:paddingLeft="15.0dip">
@@ -54,7 +54,7 @@
                 style="@style/SlidingMenu.TextView.ItemTitle"
                 android:layout_width="fill_parent"
                 android:drawableLeft="@mipmap/icon_change_background"
-                android:text="换背景" />
+                android:text="换肤" />
 
             <View style="@style/SlidingMenu.View.SplitLine" />
 

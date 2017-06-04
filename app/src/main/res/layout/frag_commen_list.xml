@@ -1,39 +1,40 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
                 android:orientation="vertical"
-                android:id="@+id/ll_down"
+                android:id="@+id/ll_local"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
     >
     <RelativeLayout
-        android:id="@+id/rl_recent_music"
+        android:id="@+id/rl_common_music"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:paddingLeft="12dp"
         android:paddingRight="12dp"
         >
         <TextView
-            android:id="@+id/tv_my_recent_music"
+            android:id="@+id/tv_my_commen_music"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@string/my_recent_music"
+            android:text="@string/my_favorite_music"
             android:textColor="@color/my_orange"
             android:textSize="@dimen/text_size_18"
             android:layout_centerVertical="true"/>
 
-        <!--<ImageView-->
-        <!--android:id="@+id/iv_my_more"-->
-        <!--android:layout_width="wrap_content"-->
-        <!--android:layout_height="wrap_content"-->
-        <!--android:paddingTop="10dp"-->
-        <!--android:paddingBottom="14dp"-->
-        <!--android:paddingLeft="10dp"-->
-        <!--android:paddingRight="10dp"-->
-        <!--android:layout_marginRight="10dp"-->
-        <!--android:layout_toLeftOf="@+id/ib_my_back"-->
-        <!--android:src="@mipmap/titlebar_more_normal"-->
-        <!--android:background="@color/my_transparent"-->
-        <!--android:layout_centerVertical="true"/>-->
+        <ImageView
+            android:id="@+id/iv_my_more"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:paddingTop="10dp"
+            android:paddingBottom="14dp"
+            android:paddingLeft="10dp"
+            android:paddingRight="10dp"
+            android:layout_marginRight="10dp"
+            android:layout_toLeftOf="@+id/ib_my_back"
+            android:src="@mipmap/titlebar_more_normal"
+            android:background="@color/my_transparent"
+            android:layout_centerVertical="true"
+            android:visibility="gone"/>
         <ImageButton
             android:id="@+id/ib_my_back"
             android:layout_alignParentRight="true"
@@ -48,10 +49,11 @@
         android:id="@+id/lv_my_music_list"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_below="@id/rl_recent_music"
+        android:layout_below="@id/rl_common_music"
         android:background="@color/my_transparent"
         android:divider="@null">
 
     </ListView>
+
 
 </RelativeLayout>

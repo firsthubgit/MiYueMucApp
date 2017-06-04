@@ -74,6 +74,7 @@
                 android:textColor="@color/my_common_white"
                 android:text="下载管理"/>
             <TextView
+                android:id="@+id/tv_download_num"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center_horizontal"
@@ -103,6 +104,7 @@
                 android:textColor="@color/my_common_white"
                 android:text="最近播放"/>
             <TextView
+                android:id="@+id/tv_recent_num"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center_horizontal"
@@ -131,10 +133,9 @@
             android:layout_centerVertical="true"
             style="@style/TextColorWhite.Section" />
         <TextView
-
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="(2)"
+            android:text=""
             android:textSize="@dimen/text_size_15"
             android:textColor="@color/my_white_alpha_70"
             android:singleLine="true"
@@ -149,7 +150,7 @@
             android:padding="10dp"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@string/my_music_manager"
+            android:text=""
             android:textSize="@dimen/text_size_14"
             android:layout_alignParentRight="true"
             android:layout_centerVertical="true"

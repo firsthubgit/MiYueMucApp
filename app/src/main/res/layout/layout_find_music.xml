@@ -2,27 +2,106 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:orientation="vertical"
     android:layout_width="fill_parent"
-    android:layout_height="fill_parent">
+    android:layout_height="fill_parent"
+    >
 
     <RelativeLayout
         android:id="@+id/rl_find_music"
         android:layout_width="match_parent"
-        android:layout_height="10dp"
+        android:layout_height="wrap_content"
         android:background="@drawable/main_search_bg"
+        android:layout_marginLeft="12dp"
+        android:layout_marginRight="12dp"
+        android:padding="4dp"
+        android:focusable="true"
+        android:focusableInTouchMode="true"
         >
         <EditText
-            android:id="@+id/tv_find_music"
+            android:id="@+id/et_find_music"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:hint="@string/find_hint"
-            android:text="niaho"
+            android:background="@null"
+            android:textSize="@dimen/text_size_16"
+            android:textColor="@color/my_common_white"
+            android:textColorHint="@color/my_white_alpha_70"
+            android:drawableLeft="@drawable/search_heard_normal"
+            android:layout_centerVertical="true"
+            android:paddingLeft="8dp"
+            android:imeOptions="actionSearch"
+            android:singleLine="true"
+            android:cursorVisible="false"
+            android:textCursorDrawable="@drawable/edittext_cursor"
             />
         <ImageView
             android:id="@+id/iv_clear_edit"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_alignParentRight="true"
+            android:layout_centerVertical="true"
+            android:layout_marginRight="6dp"
+            android:background="@drawable/btn_clear_normal"
             />
     </RelativeLayout>
+    <RelativeLayout
+        android:id="@+id/rl_search_histroy"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="12dp"
+        android:layout_marginLeft="12dp"
+        android:layout_marginRight="14dp">
+
+        <RelativeLayout
+            android:id="@+id/rl_search_heard"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            >
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentLeft="true"
+                android:layout_centerVertical="true"
+                android:paddingBottom="8dp"
+                android:textColor="@color/my_white_alpha_80"
+                android:text="搜索历史"/>
+
+            <TextView
+                android:id="@+id/tv_clearall_histroy"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentRight="true"
+                android:layout_centerVertical="true"
+                android:paddingBottom="8dp"
+                android:textColor="@color/my_orange_1"
+                android:text="清空"/>
+
+            <View
+                style="@style/DivideLine"
+                android:layout_below="@+id/tv_clearall_histroy"
+                android:layout_height="1.0px"
+                />
+        </RelativeLayout>
+
+        <ListView
+            android:id="@+id/lv_search_histroy"
+            android:layout_marginTop="5dp"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_below="@+id/rl_search_heard"
+            android:background="@color/my_transparent"
+            android:divider="@null">
+        </ListView>
+    </RelativeLayout>
+
+    <ListView
+        android:id="@+id/lv_online_music"
+        android:layout_marginTop="5dp"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_marginLeft="16dp"
+        android:background="@color/my_transparent"
+        android:divider="@null">
+    </ListView>
 
 
 

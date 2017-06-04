@@ -33,7 +33,8 @@
                 android:layout_toLeftOf="@+id/ib_my_back"
                 android:src="@mipmap/titlebar_more_normal"
                 android:background="@color/my_transparent"
-                android:layout_centerVertical="true"/>
+                android:layout_centerVertical="true"
+                android:visibility="gone"/>
             <ImageButton
                 android:id="@+id/ib_my_back"
                 android:layout_alignParentRight="true"

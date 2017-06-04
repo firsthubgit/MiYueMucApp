@@ -22,6 +22,7 @@
                 android:gravity="center"
                 android:textColor="@color/my_common_white"
                 android:textSize="@dimen/track_title"
+                android:singleLine="true"
                 tools:text="青花瓷"/>
 
             <TextView
@@ -45,7 +46,6 @@
                 android:id="@+id/riv_track_pic"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:src="@drawable/roundimage"
                 android:layout_centerInParent="true"
                 app:border_thickness="6dp"
                 app:border_outside_color="@color/my_black_alpha_10"

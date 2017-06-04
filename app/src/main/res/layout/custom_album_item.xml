@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/my_white_alpha_5">
@@ -11,7 +12,7 @@
         android:layout_marginLeft="10dp"
         android:layout_marginTop="3dp"
         android:layout_marginBottom="3dp"
-        android:src="@mipmap/ic_launcher"
+        android:src="@drawable/favorite_icon"
         />
     <LinearLayout
         android:layout_toRightOf="@+id/iv_my_music_list"
@@ -19,19 +20,29 @@
         android:layout_height="60dp"
         android:paddingLeft="8dp"
         android:orientation="vertical"
-        android:gravity="center_vertical">
+        android:gravity="center_vertical"
+        android:weightSum="2">
 
         <TextView
             android:id="@+id/tv_my_music_list_name"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            android:layout_height="0dp"
+            android:layout_weight="1"
+            android:textColor="@color/my_common_white"
+            android:textSize="@dimen/text_size_16"
+            android:gravity="center_vertical"
+            android:text="我喜欢的"
             />
 
         <TextView
             android:id="@+id/tv_my_music_list_num"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_below="@+id/tv_my_music_list_name"
+            android:layout_height="0dp"
+            android:layout_weight="1"
+            android:textSize="@dimen/text_size_16"
+            android:textColor="@color/my_white_alpha_60"
+            android:gravity="center_vertical"
+            tools:text="17"
             />
     </LinearLayout>
 

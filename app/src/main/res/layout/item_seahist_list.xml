@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+      android:orientation="vertical"
+      android:layout_width="match_parent"
+      android:layout_height="match_parent"
+    >
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+        <TextView
+            android:id="@+id/tv_seahistroy"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:layout_marginBottom="8dp"
+            android:layout_alignParentLeft="true"
+            android:drawableLeft="@drawable/search_histroy"
+            android:drawablePadding="4dp"
+            android:padding="4dp"
+            android:textColor="@color/my_common_white"
+            android:textSize="@dimen/text_size_14"
+            tools:text="周杰伦"
+            />
+
+        <!--<ImageView-->
+            <!--android:id="@+id/iv_clear_singlehis"-->
+            <!--android:layout_width="wrap_content"-->
+            <!--android:layout_height="wrap_content"-->
+            <!--android:src="@drawable/clear_histroy"-->
+            <!--android:layout_centerVertical="true"-->
+            <!--android:layout_alignParentRight="true"-->
+            <!--/>-->
+    </RelativeLayout>
+
+    <View
+        android:layout_alignParentBottom="true"
+        style="@style/DivideLine"
+        android:layout_height="1.0px"
+        />
+
+</LinearLayout>

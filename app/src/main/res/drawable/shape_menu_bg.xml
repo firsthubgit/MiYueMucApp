@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<shape xmlns:android="http://schemas.android.com/apk/res/android">
+<!--菜单的背景色，不要删除，以后可能会用-->
+    <gradient
+        android:startColor="@color/my_black_alpha_60"
+        android:endColor="@color/my_black_alpha_10"
+        android:angle="-45"
+        />
+
+</shape>
