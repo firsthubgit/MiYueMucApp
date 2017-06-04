@@ -1,5 +1,6 @@
 package com.greendao;
 
+
 /**
  * Created by zhangzhendong on 16/5/4.
  */
@@ -14,6 +15,8 @@ public class MusicBean implements MusicBeanGen {
     private String file_size;
     private String file_name;
     private String mediaID;
+    private String play_url;
+    private String pic_url;
 
     public MusicBean(){}
 
@@ -21,7 +24,20 @@ public class MusicBean implements MusicBeanGen {
         this.id = id;
     }
 
-    public MusicBean(Long id, String title, String artist, String album, String path, String duration, String file_size, String file_name, String mediaID) {
+    public MusicBean(String title, String artist, String album, String path, String duration, String file_size, String file_name, String mediaID,String play_url,String pic_url) {
+        this.title = title;
+        this.artist = artist;
+        this.album = album;
+        this.path = path;
+        this.duration = duration;
+        this.file_size = file_size;
+        this.file_name = file_name;
+        this.mediaID = mediaID;
+        this.play_url = play_url;
+        this.pic_url = pic_url;
+    }
+
+    public MusicBean(Long id, String title, String artist, String album, String path, String duration, String file_size, String file_name, String mediaID,String play_url,String pic_url) {
         this.id = id;
         this.title = title;
         this.artist = artist;
@@ -31,6 +47,8 @@ public class MusicBean implements MusicBeanGen {
         this.file_size = file_size;
         this.file_name = file_name;
         this.mediaID = mediaID;
+        this.play_url = play_url;
+        this.pic_url = pic_url;
     }
 
     @Override
@@ -107,5 +125,43 @@ public class MusicBean implements MusicBeanGen {
     @Override
     public void setMediaID(String mediaID) {
         this.mediaID = mediaID;
+    }
+
+    @Override
+    public String getPlay_url() {
+        return play_url;
+    }
+
+    @Override
+    public void setPlay_url(String play_url) {
+        this.play_url = play_url;
+    }
+
+    @Override
+    public String getPic_url() {
+        return pic_url;
+    }
+
+    @Override
+    public void setPic_url(String pic_url) {
+        this.pic_url = pic_url;
+    }
+
+
+    @Override
+    public String toString() {
+        return "MusicBean{" +
+                "id=" + id +
+                ", title='" + title + '\'' +
+                ", artist='" + artist + '\'' +
+                ", album='" + album + '\'' +
+                ", path='" + path + '\'' +
+                ", duration='" + duration + '\'' +
+                ", file_size='" + file_size + '\'' +
+                ", file_name='" + file_name + '\'' +
+                ", mediaID='" + mediaID + '\'' +
+                ", play_url='" + play_url + '\'' +
+                ", pic_url='" + pic_url + '\'' +
+                '}';
     }
 }

@@ -22,11 +22,13 @@ public class DaoSession extends AbstractDaoSession {
     private final DaoConfig favoritesDaoConfig;
     private final DaoConfig downloadDaoConfig;
     private final DaoConfig recentDaoConfig;
+    private final DaoConfig searchHisDaoConfig;
 
     private final LocalMusicDao localMusicDao;
     private final FavoritesDao favoritesDao;
     private final DownloadDao downloadDao;
     private final RecentDao recentDao;
+    private final SearchHisDao searchHisDao;
 
     public DaoSession(SQLiteDatabase db, IdentityScopeType type, Map<Class<? extends AbstractDao<?, ?>>, DaoConfig>
             daoConfigMap) {
@@ -44,15 +46,20 @@ public class DaoSession extends AbstractDaoSession {
         recentDaoConfig = daoConfigMap.get(RecentDao.class).clone();
         recentDaoConfig.initIdentityScope(type);
 
+        searchHisDaoConfig = daoConfigMap.get(SearchHisDao.class).clone();
+        searchHisDaoConfig.initIdentityScope(type);
+
         localMusicDao = new LocalMusicDao(localMusicDaoConfig, this);
         favoritesDao = new FavoritesDao(favoritesDaoConfig, this);
         downloadDao = new DownloadDao(downloadDaoConfig, this);
         recentDao = new RecentDao(recentDaoConfig, this);
+        searchHisDao = new SearchHisDao(searchHisDaoConfig, this);
 
         registerDao(MusicBean.class, localMusicDao);
         registerDao(MusicBean.class, favoritesDao);
         registerDao(MusicBean.class, downloadDao);
         registerDao(MusicBean.class, recentDao);
+        registerDao(SearchHis.class, searchHisDao);
     }
     
     public void clear() {
@@ -60,6 +67,7 @@ public class DaoSession extends AbstractDaoSession {
         favoritesDaoConfig.getIdentityScope().clear();
         downloadDaoConfig.getIdentityScope().clear();
         recentDaoConfig.getIdentityScope().clear();
+        searchHisDaoConfig.getIdentityScope().clear();
     }
 
     public LocalMusicDao getLocalMusicDao() {
@@ -76,6 +84,10 @@ public class DaoSession extends AbstractDaoSession {
 
     public RecentDao getRecentDao() {
         return recentDao;
+    }
+
+    public SearchHisDao getSearchHisDao() {
+        return searchHisDao;
     }
 
 }

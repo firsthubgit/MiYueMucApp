@@ -30,4 +30,10 @@ public interface MusicBeanGen {
 
     String getMediaID();
     void setMediaID(String mediaID);
+
+    String getPlay_url();
+    void setPlay_url(String play_url);
+
+    String getPic_url();
+    void setPic_url(String pic_url);
 }

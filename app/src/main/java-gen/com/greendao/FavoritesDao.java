@@ -30,6 +30,8 @@ public class FavoritesDao extends AbstractDao<MusicBean, Long> {
         public final static Property File_size = new Property(6, String.class, "file_size", false, "FILE_SIZE");
         public final static Property File_name = new Property(7, String.class, "file_name", false, "FILE_NAME");
         public final static Property MediaID = new Property(8, String.class, "mediaID", false, "MEDIA_ID");
+        public final static Property Play_url = new Property(9, String.class, "play_url", false, "PLAY_URL");
+        public final static Property Pic_url = new Property(10, String.class, "pic_url", false, "PIC_URL");
     };
 
 
@@ -45,7 +47,7 @@ public class FavoritesDao extends AbstractDao<MusicBean, Long> {
     public static void createTable(SQLiteDatabase db, boolean ifNotExists) {
         String constraint = ifNotExists? "IF NOT EXISTS ": "";
         db.execSQL("CREATE TABLE " + constraint + "\"FAVORITES\" (" + //
-                "\"_id\" INTEGER PRIMARY KEY ," + // 0: id
+                "\"_id\" INTEGER PRIMARY KEY AUTOINCREMENT ," + // 0: id
                 "\"TITLE\" TEXT," + // 1: title
                 "\"ARTIST\" TEXT," + // 2: artist
                 "\"ALBUM\" TEXT," + // 3: album
@@ -53,7 +55,9 @@ public class FavoritesDao extends AbstractDao<MusicBean, Long> {
                 "\"DURATION\" TEXT," + // 5: duration
                 "\"FILE_SIZE\" TEXT," + // 6: file_size
                 "\"FILE_NAME\" TEXT," + // 7: file_name
-                "\"MEDIA_ID\" TEXT);"); // 8: mediaID
+                "\"MEDIA_ID\" TEXT," + // 8: mediaID
+                "\"PLAY_URL\" TEXT," + // 9: play_url
+                "\"PIC_URL\" TEXT);"); // 10: pic_url
     }
 
     /** Drops the underlying database table. */
@@ -111,6 +115,16 @@ public class FavoritesDao extends AbstractDao<MusicBean, Long> {
         if (mediaID != null) {
             stmt.bindString(9, mediaID);
         }
+ 
+        String play_url = entity.getPlay_url();
+        if (play_url != null) {
+            stmt.bindString(10, play_url);
+        }
+ 
+        String pic_url = entity.getPic_url();
+        if (pic_url != null) {
+            stmt.bindString(11, pic_url);
+        }
     }
 
     /** @inheritdoc */
@@ -131,7 +145,9 @@ public class FavoritesDao extends AbstractDao<MusicBean, Long> {
             cursor.isNull(offset + 5) ? null : cursor.getString(offset + 5), // duration
             cursor.isNull(offset + 6) ? null : cursor.getString(offset + 6), // file_size
             cursor.isNull(offset + 7) ? null : cursor.getString(offset + 7), // file_name
-            cursor.isNull(offset + 8) ? null : cursor.getString(offset + 8) // mediaID
+            cursor.isNull(offset + 8) ? null : cursor.getString(offset + 8), // mediaID
+            cursor.isNull(offset + 9) ? null : cursor.getString(offset + 9), // play_url
+            cursor.isNull(offset + 10) ? null : cursor.getString(offset + 10) // pic_url
         );
         return entity;
     }
@@ -148,6 +164,8 @@ public class FavoritesDao extends AbstractDao<MusicBean, Long> {
         entity.setFile_size(cursor.isNull(offset + 6) ? null : cursor.getString(offset + 6));
         entity.setFile_name(cursor.isNull(offset + 7) ? null : cursor.getString(offset + 7));
         entity.setMediaID(cursor.isNull(offset + 8) ? null : cursor.getString(offset + 8));
+        entity.setPlay_url(cursor.isNull(offset + 9) ? null : cursor.getString(offset + 9));
+        entity.setPic_url(cursor.isNull(offset + 10) ? null : cursor.getString(offset + 10));
      }
     
     /** @inheritdoc */

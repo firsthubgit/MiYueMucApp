@@ -12,7 +12,7 @@ import de.greenrobot.dao.internal.DaoConfig;
 /** 
  * DAO for table "RECENT".
 */
-public class RecentDao extends AbstractDao<MusicBean, Long> {
+public class RecentDao extends AbstractDao<MusicBean, String> {
 
     public static final String TABLENAME = "RECENT";
 
@@ -21,15 +21,16 @@ public class RecentDao extends AbstractDao<MusicBean, Long> {
      * Can be used for QueryBuilder and for referencing column names.
     */
     public static class Properties {
-        public final static Property Id = new Property(0, Long.class, "id", true, "_id");
-        public final static Property Title = new Property(1, String.class, "title", false, "TITLE");
-        public final static Property Artist = new Property(2, String.class, "artist", false, "ARTIST");
-        public final static Property Album = new Property(3, String.class, "album", false, "ALBUM");
-        public final static Property Path = new Property(4, String.class, "path", false, "PATH");
-        public final static Property Duration = new Property(5, String.class, "duration", false, "DURATION");
-        public final static Property File_size = new Property(6, String.class, "file_size", false, "FILE_SIZE");
-        public final static Property File_name = new Property(7, String.class, "file_name", false, "FILE_NAME");
-        public final static Property MediaID = new Property(8, String.class, "mediaID", false, "MEDIA_ID");
+        public final static Property Title = new Property(0, String.class, "title", false, "TITLE");
+        public final static Property Artist = new Property(1, String.class, "artist", false, "ARTIST");
+        public final static Property Album = new Property(2, String.class, "album", false, "ALBUM");
+        public final static Property Path = new Property(3, String.class, "path", false, "PATH");
+        public final static Property Duration = new Property(4, String.class, "duration", false, "DURATION");
+        public final static Property File_size = new Property(5, String.class, "file_size", false, "FILE_SIZE");
+        public final static Property File_name = new Property(6, String.class, "file_name", false, "FILE_NAME");
+        public final static Property MediaID = new Property(7, String.class, "mediaID", true, "MEDIA_ID");
+        public final static Property Play_url = new Property(8, String.class, "play_url", false, "PLAY_URL");
+        public final static Property Pic_url = new Property(9, String.class, "pic_url", false, "PIC_URL");
     };
 
 
@@ -45,15 +46,16 @@ public class RecentDao extends AbstractDao<MusicBean, Long> {
     public static void createTable(SQLiteDatabase db, boolean ifNotExists) {
         String constraint = ifNotExists? "IF NOT EXISTS ": "";
         db.execSQL("CREATE TABLE " + constraint + "\"RECENT\" (" + //
-                "\"_id\" INTEGER PRIMARY KEY ," + // 0: id
-                "\"TITLE\" TEXT," + // 1: title
-                "\"ARTIST\" TEXT," + // 2: artist
-                "\"ALBUM\" TEXT," + // 3: album
-                "\"PATH\" TEXT," + // 4: path
-                "\"DURATION\" TEXT," + // 5: duration
-                "\"FILE_SIZE\" TEXT," + // 6: file_size
-                "\"FILE_NAME\" TEXT," + // 7: file_name
-                "\"MEDIA_ID\" TEXT);"); // 8: mediaID
+                "\"TITLE\" TEXT," + // 0: title
+                "\"ARTIST\" TEXT," + // 1: artist
+                "\"ALBUM\" TEXT," + // 2: album
+                "\"PATH\" TEXT," + // 3: path
+                "\"DURATION\" TEXT," + // 4: duration
+                "\"FILE_SIZE\" TEXT," + // 5: file_size
+                "\"FILE_NAME\" TEXT," + // 6: file_name
+                "\"MEDIA_ID\" TEXT PRIMARY KEY NOT NULL ," + // 7: mediaID
+                "\"PLAY_URL\" TEXT," + // 8: play_url
+                "\"PIC_URL\" TEXT);"); // 9: pic_url
     }
 
     /** Drops the underlying database table. */
@@ -67,71 +69,77 @@ public class RecentDao extends AbstractDao<MusicBean, Long> {
     protected void bindValues(SQLiteStatement stmt, MusicBean entity) {
         stmt.clearBindings();
  
-        Long id = entity.getId();
-        if (id != null) {
-            stmt.bindLong(1, id);
-        }
- 
         String title = entity.getTitle();
         if (title != null) {
-            stmt.bindString(2, title);
+            stmt.bindString(1, title);
         }
  
         String artist = entity.getArtist();
         if (artist != null) {
-            stmt.bindString(3, artist);
+            stmt.bindString(2, artist);
         }
  
         String album = entity.getAlbum();
         if (album != null) {
-            stmt.bindString(4, album);
+            stmt.bindString(3, album);
         }
  
         String path = entity.getPath();
         if (path != null) {
-            stmt.bindString(5, path);
+            stmt.bindString(4, path);
         }
  
         String duration = entity.getDuration();
         if (duration != null) {
-            stmt.bindString(6, duration);
+            stmt.bindString(5, duration);
         }
  
         String file_size = entity.getFile_size();
         if (file_size != null) {
-            stmt.bindString(7, file_size);
+            stmt.bindString(6, file_size);
         }
  
         String file_name = entity.getFile_name();
         if (file_name != null) {
-            stmt.bindString(8, file_name);
+            stmt.bindString(7, file_name);
         }
  
         String mediaID = entity.getMediaID();
         if (mediaID != null) {
-            stmt.bindString(9, mediaID);
+            stmt.bindString(8, mediaID);
+        }
+ 
+        String play_url = entity.getPlay_url();
+        if (play_url != null) {
+            stmt.bindString(9, play_url);
+        }
+ 
+        String pic_url = entity.getPic_url();
+        if (pic_url != null) {
+            stmt.bindString(10, pic_url);
         }
     }
 
     /** @inheritdoc */
     @Override
-    public Long readKey(Cursor cursor, int offset) {
-        return cursor.isNull(offset + 0) ? null : cursor.getLong(offset + 0);
+    public String readKey(Cursor cursor, int offset) {
+        return cursor.isNull(offset + 7) ? null : cursor.getString(offset + 7);
     }    
 
     /** @inheritdoc */
     @Override
     public MusicBean readEntity(Cursor cursor, int offset) {
         MusicBean entity = new MusicBean( //
-            cursor.isNull(offset + 0) ? null : cursor.getLong(offset + 0), // id
-            cursor.isNull(offset + 1) ? null : cursor.getString(offset + 1), // title
-            cursor.isNull(offset + 2) ? null : cursor.getString(offset + 2), // artist
-            cursor.isNull(offset + 3) ? null : cursor.getString(offset + 3), // album
-            cursor.isNull(offset + 4) ? null : cursor.getString(offset + 4), // path
-            cursor.isNull(offset + 5) ? null : cursor.getString(offset + 5), // duration
-            cursor.isNull(offset + 6) ? null : cursor.getString(offset + 6), // file_size
-            cursor.isNull(offset + 7) ? null : cursor.getString(offset + 7), // file_name
-            cursor.isNull(offset + 8) ? null : cursor.getString(offset + 8) // mediaID
+            cursor.isNull(offset + 0) ? null : cursor.getString(offset + 0), // title
+            cursor.isNull(offset + 1) ? null : cursor.getString(offset + 1), // artist
+            cursor.isNull(offset + 2) ? null : cursor.getString(offset + 2), // album
+            cursor.isNull(offset + 3) ? null : cursor.getString(offset + 3), // path
+            cursor.isNull(offset + 4) ? null : cursor.getString(offset + 4), // duration
+            cursor.isNull(offset + 5) ? null : cursor.getString(offset + 5), // file_size
+            cursor.isNull(offset + 6) ? null : cursor.getString(offset + 6), // file_name
+            cursor.isNull(offset + 7) ? null : cursor.getString(offset + 7), // mediaID
+            cursor.isNull(offset + 8) ? null : cursor.getString(offset + 8), // play_url
+            cursor.isNull(offset + 9) ? null : cursor.getString(offset + 9) // pic_url
         );
         return entity;
     }
@@ -139,29 +147,29 @@ public class RecentDao extends AbstractDao<MusicBean, Long> {
     /** @inheritdoc */
     @Override
     public void readEntity(Cursor cursor, MusicBean entity, int offset) {
-        entity.setId(cursor.isNull(offset + 0) ? null : cursor.getLong(offset + 0));
-        entity.setTitle(cursor.isNull(offset + 1) ? null : cursor.getString(offset + 1));
-        entity.setArtist(cursor.isNull(offset + 2) ? null : cursor.getString(offset + 2));
-        entity.setAlbum(cursor.isNull(offset + 3) ? null : cursor.getString(offset + 3));
-        entity.setPath(cursor.isNull(offset + 4) ? null : cursor.getString(offset + 4));
-        entity.setDuration(cursor.isNull(offset + 5) ? null : cursor.getString(offset + 5));
-        entity.setFile_size(cursor.isNull(offset + 6) ? null : cursor.getString(offset + 6));
-        entity.setFile_name(cursor.isNull(offset + 7) ? null : cursor.getString(offset + 7));
-        entity.setMediaID(cursor.isNull(offset + 8) ? null : cursor.getString(offset + 8));
+        entity.setTitle(cursor.isNull(offset + 0) ? null : cursor.getString(offset + 0));
+        entity.setArtist(cursor.isNull(offset + 1) ? null : cursor.getString(offset + 1));
+        entity.setAlbum(cursor.isNull(offset + 2) ? null : cursor.getString(offset + 2));
+        entity.setPath(cursor.isNull(offset + 3) ? null : cursor.getString(offset + 3));
+        entity.setDuration(cursor.isNull(offset + 4) ? null : cursor.getString(offset + 4));
+        entity.setFile_size(cursor.isNull(offset + 5) ? null : cursor.getString(offset + 5));
+        entity.setFile_name(cursor.isNull(offset + 6) ? null : cursor.getString(offset + 6));
+        entity.setMediaID(cursor.isNull(offset + 7) ? null : cursor.getString(offset + 7));
+        entity.setPlay_url(cursor.isNull(offset + 8) ? null : cursor.getString(offset + 8));
+        entity.setPic_url(cursor.isNull(offset + 9) ? null : cursor.getString(offset + 9));
      }
     
     /** @inheritdoc */
     @Override
-    protected Long updateKeyAfterInsert(MusicBean entity, long rowId) {
-        entity.setId(rowId);
-        return rowId;
+    protected String updateKeyAfterInsert(MusicBean entity, long rowId) {
+        return entity.getMediaID();
     }
     
     /** @inheritdoc */
     @Override
-    public Long getKey(MusicBean entity) {
+    public String getKey(MusicBean entity) {
         if(entity != null) {
-            return entity.getId();
+            return entity.getMediaID();
         } else {
             return null;
         }
