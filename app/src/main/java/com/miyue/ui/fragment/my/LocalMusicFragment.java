@@ -19,20 +19,29 @@ import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.Toast;
 
+import com.greendao.DBHelper;
 import com.miyue.R;
+import com.miyue.application.MiYueConstans;
 import com.miyue.common.base.BaseMediaFragment;
+import com.miyue.common.listener.CallBack;
 import com.miyue.ui.adapter.BrowseAdapter;
+import com.miyue.utils.FileUtils;
 import com.miyue.utils.UtilLog;
 import com.miyue.widgets.MorePopupWindow;
 
 import java.util.List;
 
 /**
- * Created by zhangzhendong on 16/4/12.
- */
-public class LocalMusicFragment extends BaseMediaFragment implements AdapterView.OnItemClickListener{
+*
+ * 重复的Fragment业务逻辑没有封装到另一个fragment中，
+ * 怕以后可能会要改动
+* @author ZZD
+* @time 17/6/4 下午8:20
+*/
+public class LocalMusicFragment extends BaseMediaFragment implements
+        AdapterView.OnItemClickListener, BrowseAdapter.OnMoreClickListener{
 
-    private static final String TAG = "LocalMusicFragment";
+    public static final String TAG = "LocalMusicFragment";
 
     public static final String FROM_LOCAL_MUSIC = "FROM_LOCAL_MUSIC";
 
@@ -48,6 +57,8 @@ public class LocalMusicFragment extends BaseMediaFragment implements AdapterView
     private BrowseAdapter mBrowseAdapter;
 
     private Activity mContext;
+
+    private String mPopMediaID;
 
     public static LocalMusicFragment newInstance(String whichList) {
         LocalMusicFragment localMusicFragment = new LocalMusicFragment();
@@ -77,6 +88,7 @@ public class LocalMusicFragment extends BaseMediaFragment implements AdapterView
         iv_my_more.setOnClickListener(clickListener);
         ib_my_back.setOnClickListener(clickListener);
         mBrowseAdapter = new BrowseAdapter(mActivity);
+        mBrowseAdapter.setOnMoreClickListener(this);
         lv_my_music_list.setAdapter(mBrowseAdapter);
         lv_my_music_list.setOnItemClickListener(this);
         return  rootView;
@@ -97,29 +109,48 @@ public class LocalMusicFragment extends BaseMediaFragment implements AdapterView
     View.OnClickListener clickListener = new View.OnClickListener() {
         @Override
         public void onClick(View v) {
+            Bundle bundle = null;
             switch (v.getId()){
-                case R.id.iv_my_more:
-                    if(morePop == null){
-                        morePop = new MorePopupWindow(mActivity,clickListener);
-                    }
-                    morePop.showAtLocation(rootView, Gravity.BOTTOM, 0, 0);
-                    break;
                 case R.id.ib_my_back:
                     callBack.call();
                     break;
-//                case R.id.tv_scan_music:
-//
-//                    break;
+                case R.id.iv_like_or_unlike:
+                    bundle = new Bundle();
+                    bundle.putString(MediaMetadataCompat.METADATA_KEY_MEDIA_ID, mPopMediaID);
+                    mMediaControllerCompat.getTransportControls()
+                            .sendCustomAction(MiYueConstans.CUSTOM_ACTION_THUMBS_UP, bundle);                    morePop.dismiss();
+                    break;
+                case R.id.iv_delete_music:
+                    bundle = new Bundle();
+                    bundle.putString(MediaMetadataCompat.METADATA_KEY_MEDIA_ID, mPopMediaID);
+                    mMediaControllerCompat.getTransportControls()
+                            .sendCustomAction(MiYueConstans.CUSTOM_ACTION_DELETE_CMD, bundle);
+                    morePop.dismiss();
+                    break;
             }
 
 
         }
     };
 
+    @Override
+    public void onMoreClick(String popMediaID) {
+        mPopMediaID = popMediaID;
+
+        boolean isFavorite = mDBHelper.isFavoriteMusic(popMediaID.split(":")[1]);
+        if(morePop == null){
+            morePop = new MorePopupWindow(mActivity,clickListener);
+        }
+        if(isFavorite){
+            morePop.setFavoriteSrc(R.drawable.selector_unlike_music);
+        }else{
+            morePop.setFavoriteSrc(R.drawable.selector_like_music);
+        }
+        morePop.showAtLocation(rootView, Gravity.BOTTOM, 0, 0);
+    }
 
     public void setOnBackListener(CallBack cb){
         callBack = cb;
-
     }
 
     private void checkForUserVisibleErrors(boolean forceError) {
@@ -144,17 +175,16 @@ public class LocalMusicFragment extends BaseMediaFragment implements AdapterView
 //        mErrorView.setVisibility(showError ? View.VISIBLE : View.GONE);
     }
 
-    public String getMediaId() {
+    public String getTableName() {
         Bundle args = getArguments();
         if (args != null) {
             return args.getString(FROM_LOCAL_MUSIC);
         }
         return null;
     }
-////////////////////////////////////////////////////////////////////////
-////////////////////////////////////////////////////////////////////////
-////////////////////////////////////////////////////////////////////////
-//实现的回调
+
+
+//********实现的回调*****************************************************************///
 
     @Override
     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
@@ -162,14 +192,43 @@ public class LocalMusicFragment extends BaseMediaFragment implements AdapterView
         UtilLog.e(TAG, String.valueOf(b));
         MediaBrowserCompat.MediaItem item =
                 (MediaBrowserCompat.MediaItem)mBrowseAdapter.getItem(position);
+        String path = item.getDescription().getMediaUri().toString();
+        if(!FileUtils.isFileExist(path)){
+            mActivity.showText("本地文件不存在，请手动删除");
+            return;
+        }
         mMediaControllerCompat.getTransportControls()
                 .playFromMediaId(item.getMediaId(), null);
     }
+
+    private void dealAction(List<PlaybackStateCompat.CustomAction> actions) {
+
+        for(PlaybackStateCompat.CustomAction customAction : actions){
+            String command = customAction.getAction();
+            switch (command){
+                case MiYueConstans.CUSTOM_ACTION_DELETE_CMD:
+                    mActivity.showText("删除成功");
+                    mActivity.getMediaBrowser().unsubscribe(whichList);
+                    mActivity.getMediaBrowser().subscribe(whichList, mSubscriptionCallback);
+                    break;
+                case MiYueConstans.CUSTOM_ACTION_DOWNLOAD_SUCCESS:
+                    mActivity.getMediaBrowser().unsubscribe(whichList);
+                    mActivity.getMediaBrowser().subscribe(whichList, mSubscriptionCallback);
+                    break;
+            }
+        }
+    }
+
     @Override
     public void onPlaybackStateChangedForClien(@NonNull PlaybackStateCompat state) {
         checkForUserVisibleErrors(false);
+        List<PlaybackStateCompat.CustomAction> actions= state.getCustomActions();
+        if(actions != null && actions.size()>0){
+            dealAction(actions);
+        }
         mBrowseAdapter.notifyDataSetChanged();
     }
+
 
     @Override
     public void onMetadataChangedForClien(MediaMetadataCompat metadata) {
@@ -181,7 +240,7 @@ public class LocalMusicFragment extends BaseMediaFragment implements AdapterView
         if (isDetached()) {
             return;
         }
-        whichList = getMediaId();
+        whichList = getTableName();
 
         // Unsubscribing before subscribing is required if this mediaId already has a subscriber
         // on this MediaBrowser instance. Subscribing to an already subscribed mediaId will replace
@@ -224,8 +283,5 @@ public class LocalMusicFragment extends BaseMediaFragment implements AdapterView
                 }
             };
 
-/////////////////////////////////////////////////////////////////////
-    public  interface CallBack{
-         void call();
-    }
+
 }

@@ -3,6 +3,8 @@ package com.miyue.http;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
+import com.miyue.bean.QQSong;
+import com.miyue.bean.SongsInfo;
 import com.miyue.bean.TrackLrc;
 import com.miyue.utils.UtilLog;
 
@@ -46,5 +48,26 @@ public class JsonParser {
             e.printStackTrace();
             return null;
         }
+    }
+
+    public static SongsInfo<QQSong> parseQQForSong(String responseStr){
+        List<QQSong> result = null;
+        SongsInfo<QQSong> songsInfo = new SongsInfo<>();
+        try {
+            JSONObject object = JSON.parseObject(responseStr);
+            JSONObject data = (JSONObject) object.get("data");
+            if(data != null){
+                JSONObject songs = (JSONObject) data.get("song");
+                songsInfo.setTotalnum(songs.getString("totalnum"));
+                if(songs != null){
+                    JSONArray jsonArray = songs.getJSONArray("list");
+                    result = JSON.parseArray(jsonArray.toJSONString(), QQSong.class);
+                    songsInfo.setList((ArrayList<QQSong>) result);
+                }
+            }
+        } catch (Exception e) {
+            UtilLog.e(TAG,"parseResponseData()中解析json出现异常");
+        }
+        return songsInfo;
     }
 }

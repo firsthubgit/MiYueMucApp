@@ -4,11 +4,12 @@ import android.media.MediaPlayer;
 import android.os.SystemClock;
 
 /**
- * Created by zhangzhendong on 17/5/17.
+*
+* @author ZZD
+* @time 17/5/17 下午4:41
  *
  * 兼容API 16以下的系统
- */
-
+*/
 public class CompatMediaPlayer extends MediaPlayer implements MediaPlayer.OnCompletionListener {
 
     private boolean mCompatMode = true;

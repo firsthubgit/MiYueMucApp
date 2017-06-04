@@ -75,7 +75,7 @@ public class RoundImageView extends AppCompatImageView {
         if (drawable.getClass() == NinePatchDrawable.class)
             return;
         Bitmap b = ((BitmapDrawable) drawable).getBitmap();
-        Bitmap bitmap = b.copy(Bitmap.Config.ARGB_8888, true);
+        Bitmap bitmap = b.copy(Bitmap.Config.ARGB_4444, true);
         if (defaultWidth == 0) {
             defaultWidth = getWidth();
 
@@ -165,7 +165,7 @@ public class RoundImageView extends AppCompatImageView {
             scaledSrcBmp = squareBitmap;
         }
         Bitmap output = Bitmap.createBitmap(scaledSrcBmp.getWidth(),
-                scaledSrcBmp.getHeight(), Bitmap.Config.ARGB_8888);
+                scaledSrcBmp.getHeight(), Bitmap.Config.ARGB_4444);
         Canvas canvas = new Canvas(output);
 
         Paint paint = new Paint();

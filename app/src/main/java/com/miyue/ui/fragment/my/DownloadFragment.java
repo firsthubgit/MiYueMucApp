@@ -16,7 +16,6 @@ import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ImageButton;
 import android.widget.ListView;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import com.miyue.R;
@@ -32,12 +31,15 @@ import java.util.List;
 /**
 *
 * @author ZZD
-* @time 17/6/3 下午7:18
+* @time  17/6/3 下午12:50
 */
-public class RecentPlayFragment extends BaseMediaFragment implements BrowseAdapter.OnMoreClickListener{
+
+
+public class DownloadFragment extends BaseMediaFragment implements BrowseAdapter.OnMoreClickListener{
 
     private static final String TAG = "DownloadFragment";
-    private static final String FROM_RECENT_MUSIC = "FROM_RECENT_MUSIC";
+    private static final String FROM_DOWNLOAD_MUSIC = "FROM_DOWNLOAD_MUSIC";
+
 
     private View rootView;
     private ListView lv_my_music_list;
@@ -54,13 +56,12 @@ public class RecentPlayFragment extends BaseMediaFragment implements BrowseAdapt
     private String mPopMediaID;
     private MorePopupWindow morePop;
 
-
-    public static RecentPlayFragment newInstance(String whichList) {
-        RecentPlayFragment recentPlayFragment = new RecentPlayFragment();
+    public static DownloadFragment newInstance(String whichList) {
+        DownloadFragment downloadFragment = new DownloadFragment();
         Bundle bundle = new Bundle();
-        bundle.putString(FROM_RECENT_MUSIC, whichList);
-        recentPlayFragment.setArguments(bundle);
-        return recentPlayFragment;
+        bundle.putString(FROM_DOWNLOAD_MUSIC, whichList);
+        downloadFragment.setArguments(bundle);
+        return downloadFragment;
     }
 
     @Override
@@ -72,48 +73,19 @@ public class RecentPlayFragment extends BaseMediaFragment implements BrowseAdapt
         registBaseCallback();
     }
 
-
     @Nullable
     @Override
-    public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        rootView = inflater.inflate(R.layout.frag_recent_play, null);
+    public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, Bundle savedInstanceState) {
+        rootView = inflater.inflate(R.layout.frag_down_music,null);
         lv_my_music_list = (ListView) rootView.findViewById(R.id.lv_my_music_list);
         ib_my_back = (ImageButton) rootView.findViewById(R.id.ib_my_back);
         mBrowseAdapter = new BrowseAdapter(mActivity);
         mBrowseAdapter.setOnMoreClickListener(this);
         lv_my_music_list.setAdapter(mBrowseAdapter);
-
         initListener();
         return rootView;
     }
 
-    View.OnClickListener clickListener = new View.OnClickListener(){
-
-        @Override
-        public void onClick(View v) {
-            Bundle bundle = null;
-            switch (v.getId()){
-                case R.id.ib_my_back:
-                    callBack.call();
-                    break;
-                case R.id.iv_like_or_unlike:
-                    bundle = new Bundle();
-                    bundle.putString(MediaMetadataCompat.METADATA_KEY_MEDIA_ID, mPopMediaID);
-                    mMediaControllerCompat.getTransportControls()
-                            .sendCustomAction(MiYueConstans.CUSTOM_ACTION_THUMBS_UP, bundle);
-                    morePop.dismiss();
-                    break;
-                case R.id.iv_delete_music:
-                    bundle = new Bundle();
-                    bundle.putString(MediaMetadataCompat.METADATA_KEY_MEDIA_ID, mPopMediaID);
-                    mMediaControllerCompat.getTransportControls()
-                            .sendCustomAction(MiYueConstans.CUSTOM_ACTION_DELETE_CMD, bundle);
-                    morePop.dismiss();
-                default:
-                        break;
-            }
-        }
-    };
     private void initListener() {
         ib_my_back.setOnClickListener(clickListener);
         lv_my_music_list.setOnItemClickListener(new AdapterView.OnItemClickListener() {
@@ -129,6 +101,32 @@ public class RecentPlayFragment extends BaseMediaFragment implements BrowseAdapt
         });
     }
 
+    View.OnClickListener clickListener = new View.OnClickListener(){
+
+        @Override
+        public void onClick(View v) {
+            Bundle bundle = null;
+            switch (v.getId()){
+                case R.id.ib_my_back:
+                    callBack.call();
+                    break;
+                case R.id.iv_like_or_unlike:
+                    bundle = new Bundle();
+                    bundle.putString(MediaMetadataCompat.METADATA_KEY_MEDIA_ID, mPopMediaID);
+                    mMediaControllerCompat.getTransportControls()
+                            .sendCustomAction(MiYueConstans.CUSTOM_ACTION_THUMBS_UP, bundle);                    morePop.dismiss();
+                    break;
+                case R.id.iv_delete_music:
+                    bundle = new Bundle();
+                    bundle.putString(MediaMetadataCompat.METADATA_KEY_MEDIA_ID, mPopMediaID);
+                    mMediaControllerCompat.getTransportControls()
+                            .sendCustomAction(MiYueConstans.CUSTOM_ACTION_DELETE_CMD, bundle);
+                    morePop.dismiss();
+                default:
+                    break;
+            }
+        }
+    };
 
     /**onStart时候，onConnected，进行注册*/
     @Override
@@ -140,16 +138,16 @@ public class RecentPlayFragment extends BaseMediaFragment implements BrowseAdapt
         }
     }
 
+    public void setOnBackListener(CallBack cb){
+        callBack = cb;
+    }
+
     public String getTableName() {
         Bundle args = getArguments();
         if (args != null) {
-            return args.getString(FROM_RECENT_MUSIC);
+            return args.getString(FROM_DOWNLOAD_MUSIC);
         }
         return null;
-    }
-
-    public void setOnBackListener(CallBack cb){
-        callBack = cb;
     }
 
     private void checkForUserVisibleErrors(boolean forceError) {
@@ -224,7 +222,6 @@ public class RecentPlayFragment extends BaseMediaFragment implements BrowseAdapt
                     checkForUserVisibleErrors(true);
                 }
             };
-
 
     @Override
     public void onMoreClick(String mediaID) {

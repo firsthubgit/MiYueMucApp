@@ -6,7 +6,6 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.drawable.BitmapDrawable;
 import android.view.ViewGroup;
-import android.widget.RelativeLayout;
 
 import com.miyue.R;
 
@@ -22,14 +21,14 @@ public class SkinUtils {
     public static Bitmap initBackground(Activity activity, ViewGroup viewbg) {
         AssetManager am = activity.getAssets();
         String bgPath = PreferenUtils.getInstance(activity).getBgPath();
-        if("".equals(bgPath) || bgPath == null){
-            viewbg.setBackgroundResource(R.drawable.backgroud);
-            return null;
-        }
         Bitmap bitmap = null;
         InputStream is = null;
         try {
-            is = am.open("bkgs/"+bgPath);
+            if("".equals(bgPath) || bgPath == null){
+                is = am.open("bkgs/006.png");
+            }else{
+                is = am.open("bkgs/"+bgPath);
+            }
             BitmapFactory.Options options = new BitmapFactory.Options();
             options.inSampleSize = 1;
             bitmap = BitmapFactory.decodeStream(is, null, options);

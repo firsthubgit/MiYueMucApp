@@ -19,8 +19,31 @@ public class MiYueConstans {
      /**循环播放*/
      public static final int MODE_LOOPER = 3;
 
-     public static final String LRC_PATH = Environment.getExternalStorageDirectory().getAbsolutePath()
-             + "/Music/Lrc/";
+     public static final String ABSOLUTE_PATH = Environment.getExternalStorageDirectory().getAbsolutePath();
+
+     public static final String LRC_PATH = ABSOLUTE_PATH + "/Music/Lrc/";
+
+     public static final String ALBUM_CACHE_PATH = ABSOLUTE_PATH + "/Music/Album/";
+
+     public static final String MUSIC_DOWN_PATH = ABSOLUTE_PATH+ "/Music/Download/";
+
+     public static final String QQ_PIC_URL = "http://imgcache.qq.com/music/photo/album_300/IMAGEID100/300_albumpic_IMAGEID_0.jpg";
+
+     public static final String QQ_PLAY_URL = "http://ws.stream.qqmusic.qq.com/SONGID.m4a?fromtag=46";
+
+
+
+     // 下载音乐成功
+     public static final String CUSTOM_ACTION_DOWNLOAD_SUCCESS = "com.miyue.DOWNLOAD_SUCESS";
+     // 删除音乐命令
+     public static final String CUSTOM_ACTION_DELETE_CMD = "com.miyue.DELETE_CMD ";
+     // 最爱音乐
+     public static final String CUSTOM_ACTION_THUMBS_UP = "com.miyue.THUMBS_UP";
+
+
+
+     //本地文件已经被删除
+     public static final String ERROR_NO_FILE = "com.miyue.NO_FILE";
 
      // Extra on MediaSession that contains the Cast device name currently connected to
      public static final String EXTRA_CONNECTED_CAST = "com.example.android.uamp.CAST_NAME";

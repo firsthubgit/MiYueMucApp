@@ -36,4 +36,10 @@ public class UtilLog {
             Log.d(tag,value);
         }
     }
+
+    public static void url(String value){
+        if(isTest){
+            Log.e("url",value);
+        }
+    }
 }

@@ -18,6 +18,8 @@ import com.miyue.common.base.BaseMediaFragment;
 import com.miyue.bean.LrcRow;
 import com.miyue.http.HttpApi;
 import com.miyue.utils.FileUtils;
+import com.miyue.utils.NetWorkUtils;
+import com.miyue.utils.StringUtils;
 import com.miyue.widgets.LrcView;
 
 import java.util.List;
@@ -35,10 +37,15 @@ public class LrcFragment extends BaseMediaFragment implements PlayFragment.SeekB
 
     private String mTitle;
     private String mArtist;
+    private String mMediaID;
 
     private QureyLRCTask mQureyLRCTask;
+
+    private QueryLRCFromQQ mQueryLRCFromQQ;
     /**当前歌曲查找歌词，第一次点击*/
     private boolean isFirstClick = true;
+
+
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
@@ -59,8 +66,11 @@ public class LrcFragment extends BaseMediaFragment implements PlayFragment.SeekB
         tv_down_lrc.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                if(mTitle == null || mArtist == null){
+                    mActivity.showText("播放一首歌试试");
+                    return;
+                }
                 if(isFirstClick){
-                    isFirstClick = false;
                     getQueryLrcTask();
                 } else {
                     mActivity.showText("没有歌词!\n再戳，再戳我就自爆!!!");
@@ -98,7 +108,13 @@ public class LrcFragment extends BaseMediaFragment implements PlayFragment.SeekB
             Bundle metaBundle = metadata.getBundle();
             mTitle = metaBundle.getString(MediaMetadataCompat.METADATA_KEY_TITLE);
             mArtist = metaBundle.getString(MediaMetadataCompat.METADATA_KEY_ARTIST);
-            updateLrc(mTitle + ":" + mArtist);
+            mMediaID = metaBundle.getString(MediaMetadataCompat.METADATA_KEY_MEDIA_ID);
+            if(!FileUtils.isLRCFileExists(FileUtils.getLrcName(mTitle, mArtist))
+                    && mMediaID.split(":").length == 1){//从搜索列表过来的只有id,其他有分号
+                getQueryQQLRCTask(mMediaID);
+            } else {
+                updateLrc(FileUtils.getLrcName(mTitle, mArtist));
+            }
         }
     }
 
@@ -111,8 +127,12 @@ public class LrcFragment extends BaseMediaFragment implements PlayFragment.SeekB
         mLrc_view.seekTo(progress, true, fromUser);
     }
 
-
+    /**从天天动听音乐获取歌词*/
     public void getQueryLrcTask(){
+        if(!NetWorkUtils.isConnected(mActivity)){
+            mActivity.showText("哎哟，你没联网啊！");
+            return;
+        }
         if (mQureyLRCTask != null && (mQureyLRCTask.getStatus().equals(AsyncTask.Status.RUNNING)
                 || mQureyLRCTask.getStatus().equals(AsyncTask.Status.PENDING))) {
             mQureyLRCTask.cancel(true);
@@ -121,26 +141,68 @@ public class LrcFragment extends BaseMediaFragment implements PlayFragment.SeekB
         mQureyLRCTask.execute(mTitle, mArtist);
     }
 
-
+    /**从天天动听音乐获取歌词*/
     public class QureyLRCTask extends AsyncTask<String, Void, String>{
+        private String mtitle;
+        private String martist;
+
+        @Override
+        protected void onPreExecute() {
+            super.onPreExecute();
+            isFirstClick = false;
+        }
 
         @Override
         protected String doInBackground(String... params) {
+            mtitle = params[0];
+            martist = params[1];
             String lrc = HttpApi.getLrc(params);
             if(lrc == null){
                 return null;
             }
-            FileUtils.downLrc(lrc, MiYueConstans.LRC_PATH+ params[0]+ ":"+ params[1] + ".lrc");
+            FileUtils.downLrc(lrc, FileUtils.getLrcName(mtitle, martist));
             return lrc;
         }
         @Override
         protected void onPostExecute(String s) {
             super.onPostExecute(s);
-            if(TextUtils.isEmpty(s)){
+            if(StringUtils.isNullOrEmpty(s)){
                 mActivity.showText("没有找到歌词");
             }else{
-                updateLrc(mTitle + ":" + mArtist);
+                updateLrc(FileUtils.getLrcName(mtitle, martist));
             }
+        }
+    }
+
+    /**从QQ音乐获取歌词*/
+    public void getQueryQQLRCTask(String songID){
+        if (mQueryLRCFromQQ != null && (mQueryLRCFromQQ.getStatus().equals(AsyncTask.Status.RUNNING)
+                || mQueryLRCFromQQ.getStatus().equals(AsyncTask.Status.PENDING))) {
+            mQueryLRCFromQQ.cancel(true);
+        }
+        mQueryLRCFromQQ = new QueryLRCFromQQ();
+        mQueryLRCFromQQ.execute(songID);
+    }
+    /**从QQ音乐获取歌词*/
+    public class QueryLRCFromQQ extends AsyncTask<String, Void, String>{
+
+        @Override
+        protected String doInBackground(String... params) {
+            String qqLRC = HttpApi.getQQLRC(params[0]);
+            if(qqLRC == null){
+                return null;
+            }
+            FileUtils.downLrc(qqLRC, FileUtils.getLrcName(mTitle, mArtist));
+            return qqLRC;
+        }
+
+        @Override
+        protected void onPostExecute(String s) {
+            super.onPostExecute(s);
+            if(StringUtils.isNullOrEmpty(s)){
+                mActivity.showText("没有找到歌词");
+            }
+            updateLrc(FileUtils.getLrcName(mTitle, mArtist));
         }
     }
 }

@@ -9,6 +9,8 @@ import android.support.v4.media.MediaMetadataCompat;
 import android.support.v4.media.session.MediaControllerCompat;
 import android.support.v4.media.session.PlaybackStateCompat;
 
+import com.greendao.DBHelper;
+
 /**
  * Created by zhangzhendong on 17/5/21.
  */
@@ -20,6 +22,9 @@ public abstract class BaseMediaFragment extends BaseFragment {
     protected MediaControllerCompat mMediaControllerCompat;
 
     protected BaseActivity mActivity;
+
+    protected DBHelper  mDBHelper;
+
 
     private final MediaControllerCompat.Callback mMediaControllerCallback =
             new MediaControllerCompat.Callback() {
@@ -39,6 +44,7 @@ public abstract class BaseMediaFragment extends BaseFragment {
     public void onAttach(Context context) {
         super.onAttach(context);
         mActivity = (BaseActivity) context;
+        mDBHelper = DBHelper.getInstance(context);
     }
 
     @Override

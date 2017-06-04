@@ -3,6 +3,7 @@ package com.miyue.http;
 import android.text.TextUtils;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.concurrent.TimeUnit;
 
 import okhttp3.OkHttpClient;
@@ -39,5 +40,24 @@ public class NetManager {
                 .build();
         Response response = client.newCall(request).execute();
         return response.body().string();
+    }
+
+    public String getGB2312(String url) throws IOException {
+        Request request = new Request.Builder()
+                .url(url)
+                .build();
+        Response response = client.newCall(request).execute();
+        byte[] b = response.body().bytes(); //获取数据的bytes
+        String info = new String(b, "GB2312"); //然后将其转为gb2312
+        return info;
+    }
+
+    public InputStream getStream(String url) throws IOException {
+        Request request = new Request.Builder()
+                .url(url)
+                .build();
+        Response response = client.newCall(request).execute();
+        InputStream is = response.body().byteStream();
+        return is;
     }
 }

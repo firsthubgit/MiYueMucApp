@@ -1,22 +1,24 @@
 package com.miyue.service.playback;
 
+import android.net.Uri;
 import android.os.Bundle;
 import android.os.SystemClock;
 import android.support.annotation.NonNull;
+import android.support.v4.media.MediaMetadataCompat;
 import android.support.v4.media.session.MediaSessionCompat;
 import android.support.v4.media.session.PlaybackStateCompat;
 
-import com.miyue.R;
 import com.miyue.application.MiYueConstans;
 import com.miyue.common.listener.Playback;
-import com.miyue.dao.MusicProvider;
+import com.miyue.utils.MusicUtils;
 import com.miyue.utils.UtilLog;
 
 /**
- * Created by zhangzhendong on 17/5/20.
- */
-
-public class PlayerController implements  Playback.Callback{
+*
+* @author ZZD
+* @time 17/5/20. 下午4:41
+*/
+public class PlayerController implements Playback.Callback{
 
     private static final String TAG = "PlayerController";
 
@@ -26,8 +28,6 @@ public class PlayerController implements  Playback.Callback{
     private MusicServiceCallback mServiceCallback;
     private MediaSessionCallback mMediaSessionCallback;
 
-    // Action to thumbs up a media item
-    private static final String CUSTOM_ACTION_THUMBS_UP = "com.example.android.uamp.THUMBS_UP";
 
 
     public PlayerController(MusicServiceCallback serviceCallback,
@@ -52,7 +52,8 @@ public class PlayerController implements  Playback.Callback{
     /**
      * 更新当前media player的状态
      */
-    public void updatePlaybackState() {
+    public void updatePlaybackState(String error, String action) {
+
         long position = PlaybackStateCompat.PLAYBACK_POSITION_UNKNOWN;
         if (mMusicPlayer != null) {
             position = mMusicPlayer.getCurrentStreamPosition();
@@ -61,9 +62,29 @@ public class PlayerController implements  Playback.Callback{
         //noinspection ResourceType
         PlaybackStateCompat.Builder stateBuilder = new PlaybackStateCompat.Builder()
                 .setActions(getAvailableActions());
-
-        setCustomAction(stateBuilder);
+        if(null != action){
+            switch (action){
+                case MiYueConstans.CUSTOM_ACTION_DOWNLOAD_SUCCESS:
+                    setCusActAddSuccess(stateBuilder);
+                    break;
+                case MiYueConstans.CUSTOM_ACTION_DELETE_CMD:
+                    setCusActDelete(stateBuilder);
+                    break;
+                case MiYueConstans.CUSTOM_ACTION_THUMBS_UP:
+                    setCustomAction(stateBuilder);
+                    break;
+                default:
+                    break;
+            }
+        }
         int state = mMusicPlayer.getState();
+
+        if (error != null) {
+            // Error states are really only supposed to be used for errors that cause playback to
+            // stop unexpectedly and persist until the user takes action to fix it.
+            stateBuilder.setErrorMessage(error);
+            state = PlaybackStateCompat.STATE_ERROR;
+        }
 
         //noinspection ResourceType
         stateBuilder.setState(state, position, 1.0f, SystemClock.elapsedRealtime());
@@ -98,23 +119,27 @@ public class PlayerController implements  Playback.Callback{
         return actions;
     }
 
-
-    private void setCustomAction(PlaybackStateCompat.Builder stateBuilder) {
-        MediaSessionCompat.QueueItem currentMusic = mQueueManager.getCurrentMusic();
-        if (currentMusic == null) {
-            return;
-        }
-        String mediaId = currentMusic.getDescription().getMediaId();
-        if (mediaId == null) {
-            return;
-        }
-        int favoriteIcon = mMusicProvider.isFavorite(mediaId) ?
-                R.drawable.ic_star_on : R.drawable.ic_star_off;
-        UtilLog.e(TAG, "updatePlaybackState, setting Favorite custom action of music " +
-                mediaId + " current favorite=" + mMusicProvider.isFavorite(mediaId));
+    private void setCusActAddSuccess(PlaybackStateCompat.Builder stateBuilder){
         Bundle customActionExtras = new Bundle();
         stateBuilder.addCustomAction(new PlaybackStateCompat.CustomAction.Builder(
-                CUSTOM_ACTION_THUMBS_UP, "最爱", favoriteIcon)
+                MiYueConstans.CUSTOM_ACTION_DOWNLOAD_SUCCESS, "下载成功", 1)
+                .setExtras(customActionExtras)
+                .build());
+    }
+
+    private void setCusActDelete(PlaybackStateCompat.Builder stateBuilder){
+        Bundle customActionExtras = new Bundle();
+        stateBuilder.addCustomAction(new PlaybackStateCompat.CustomAction.Builder(
+                MiYueConstans.CUSTOM_ACTION_DELETE_CMD, "删除成功", 1)
+                .setExtras(customActionExtras)
+                .build());
+    }
+
+    private void setCustomAction(PlaybackStateCompat.Builder stateBuilder) {
+
+        Bundle customActionExtras = new Bundle();
+        stateBuilder.addCustomAction(new PlaybackStateCompat.CustomAction.Builder(
+                MiYueConstans.CUSTOM_ACTION_THUMBS_UP, "最爱", 1)
                 .setExtras(customActionExtras)
                 .build());
     }
@@ -122,17 +147,30 @@ public class PlayerController implements  Playback.Callback{
     public void setCurrentMediaId(String mediaId) {
         mQueueManager.setQueueFromMusic(mediaId);
     }
-////////////////////////////////////////////////////////////////
-//处理播放相关
+
+///****************处理播放相关******************************************************///////
 
 
     public void handlePlayRequest(){
         UtilLog.e(TAG, "handlePlayRequest: mState=" + mMusicPlayer.getState());
-        MediaSessionCompat.QueueItem currentMusic = mQueueManager.getCurrentMusic();
-        if (currentMusic != null) {
+        if(mQueueManager.isNetPlay){
             mServiceCallback.onPlaybackStart();
-            mMusicPlayer.play(currentMusic.getDescription());
+            mMusicPlayer.play(mQueueManager.getCurretNetMedia().getDescription());
+            //在线音乐先不添加到最近播放
+//            mMusicProvider.addRecentMusic(mQueueManager.getCurretNetMedia());
+        } else{
+            MediaSessionCompat.QueueItem currentMusic = mQueueManager.getCurrentMusic();
+            if (currentMusic != null) {
+                mServiceCallback.onPlaybackStart();
+                mMusicPlayer.play(currentMusic.getDescription());
+                mMusicProvider.addRecentMusic(currentMusic.getDescription().getMediaId());
+            }
         }
+    }
+
+    public void handlePlayFromNet(MediaMetadataCompat mediaData){
+        mServiceCallback.onPlaybackStart();
+        mMusicPlayer.play(mediaData.getDescription());
     }
 
     public void handlePauseRequest() {
@@ -147,7 +185,7 @@ public class PlayerController implements  Playback.Callback{
         UtilLog.e(TAG, "handleStopRequest: mState=" + mMusicPlayer.getState());
         mMusicPlayer.stop(true);
         mServiceCallback.onPlaybackStop();
-        updatePlaybackState();
+        updatePlaybackState(withError, null);
     }
 ///////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////
@@ -165,6 +203,12 @@ public class PlayerController implements  Playback.Callback{
 
         @Override
         public void onPlayFromMediaId(String mediaId, Bundle extras) {
+            if(mQueueManager.isNetPlay){
+                mQueueManager.switchtoLocal();
+                mQueueManager.setQueueFromMusic(mediaId);
+                handlePlayRequest();
+                return;
+            }
             UtilLog.e(TAG, "playFromMediaId mediaId:"+ mediaId + "  extras=" + extras);
             if(null !=mQueueManager.getCurrentMusic()
                     && (mediaId.equals(mQueueManager.getCurrentMusic().getDescription().getMediaId()))){
@@ -189,11 +233,13 @@ public class PlayerController implements  Playback.Callback{
         public void onStop() {
             UtilLog.e(TAG, "stop. current state=" + mMusicPlayer.getState());
             handleStopRequest(null);
+
         }
 
         @Override
         public void onSkipToNext() {
             UtilLog.e(TAG, "skipToNext");
+            mQueueManager.switchtoLocal();
             if (mQueueManager.skipNextOperation(0)) {
                 handlePlayRequest();
             } else {
@@ -204,6 +250,7 @@ public class PlayerController implements  Playback.Callback{
 
         @Override
         public void onSkipToPrevious() {
+            mQueueManager.switchtoLocal();
             if (mQueueManager.skipPreOperation()) {
                 handlePlayRequest();
             } else {
@@ -229,22 +276,35 @@ public class PlayerController implements  Playback.Callback{
         public void onSetRepeatMode(int repeatMode){
             mQueueManager.setRepeatMode(repeatMode);
         }
+
+        @Override
+        public void onPlayFromUri(Uri uri, Bundle extras) {
+            super.onPlayFromUri(uri, extras);
+            MediaMetadataCompat mediaData = MusicUtils.createMetadataFromQQSong(extras);
+            mQueueManager.updateNetMetadata(mediaData);
+            handlePlayFromNet(mediaData);
+        }
+
         @Override
         public void onCustomAction(@NonNull String action, Bundle extras) {
             UtilLog.e(TAG, "onCustomAction action:" + action);
-            if (CUSTOM_ACTION_THUMBS_UP.equals(action)) {
-                UtilLog.e(TAG, "onCustomAction: favorite for current track");
-                MediaSessionCompat.QueueItem currentMusic = mQueueManager.getCurrentMusic();
-                if (currentMusic != null) {
-                    String mediaId = currentMusic.getDescription().getMediaId();
-                    if (mediaId != null) {
-                        mMusicProvider.setFavorite(mediaId, !mMusicProvider.isFavorite(mediaId));
-                    }
+            if (MiYueConstans.CUSTOM_ACTION_THUMBS_UP.equals(action)) {
+                String mediaID = extras.getString(MediaMetadataCompat.METADATA_KEY_MEDIA_ID);
+                if (mediaID != null) {
+                    mMusicProvider.setFavorite(mediaID, !mMusicProvider.isFavorite(mediaID));
                 }
-                // playback state needs to be updated because the "Favorite" icon on the
-                // custom action will change to reflect the new favorite state.
-                updatePlaybackState();
-            } else {
+                updatePlaybackState(null, MiYueConstans.CUSTOM_ACTION_THUMBS_UP);
+            } else if(MiYueConstans.CUSTOM_ACTION_DOWNLOAD_SUCCESS.equals(action)){
+                MediaMetadataCompat metaData = MusicUtils.createMetadataFromQQSong(extras);
+                mMusicProvider.addDownMusic(metaData);
+                mQueueManager.refreshQueue();
+                updatePlaybackState(null, MiYueConstans.CUSTOM_ACTION_DOWNLOAD_SUCCESS);
+            } else if(MiYueConstans.CUSTOM_ACTION_DELETE_CMD.equals(action)){
+                String mediaID = extras.getString(MediaMetadataCompat.METADATA_KEY_MEDIA_ID);
+                mMusicProvider.deleteMusic(mediaID);
+                mQueueManager.refreshQueue();
+                updatePlaybackState(null, MiYueConstans.CUSTOM_ACTION_DELETE_CMD);
+            }else{
                 UtilLog.e(TAG, "Unsupported action: " + action);
             }
         }
@@ -268,14 +328,12 @@ public class PlayerController implements  Playback.Callback{
     }
 
 
-//////////////////////////////////////////////////////////
-///////////////////////////////////////////////////////////////////
-/////////////////////////////////////////////////////////////////////
-//好多回调
+//********好多回调****************************************************************//
 
     @Override
     public void onCompletion() {
         UtilLog.e(TAG, "播完一曲,然后skipToNext");
+        mQueueManager.switchtoLocal();
         if (mQueueManager.skipNextOperation(9)) {
             handlePlayRequest();
         } else {
@@ -286,12 +344,13 @@ public class PlayerController implements  Playback.Callback{
     //RemoteMusicPlayer调用
     @Override
     public void onPlaybackStatusChanged(int state) {
-        updatePlaybackState();
+        updatePlaybackState(null, null);
     }
 
     @Override
     public void onError(String error) {
-
+        UtilLog.e(TAG, "error: " + error);
+        updatePlaybackState(error, null);
     }
 
 

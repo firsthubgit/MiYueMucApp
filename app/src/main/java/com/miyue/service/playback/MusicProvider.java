@@ -1,8 +1,9 @@
-package com.miyue.dao;
+package com.miyue.service.playback;
 
 import android.content.ContentResolver;
 import android.database.Cursor;
 import android.os.AsyncTask;
+import android.os.Bundle;
 import android.os.Environment;
 import android.provider.MediaStore;
 import android.support.v4.media.MediaBrowserCompat;
@@ -13,12 +14,19 @@ import com.greendao.DBHelper;
 import com.greendao.MusicBean;
 import com.miyue.application.DbConstans;
 import com.miyue.application.MiYueApp;
+import com.miyue.application.MiYueConstans;
+import com.miyue.utils.FileUtils;
+import com.miyue.utils.MusicUtils;
 import com.miyue.utils.UtilLog;
 
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Iterator;
+import java.util.LinkedHashMap;
+import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -26,6 +34,8 @@ import java.util.concurrent.ConcurrentHashMap;
 *
 * @author ZZD
 * @time 17/5/19 下午5:46
+ *
+ * 数据库中mediaID不带 "DbConstants.table :",开启app取出时候，添加表名和冒号
 */
 public class MusicProvider {
 
@@ -33,12 +43,24 @@ public class MusicProvider {
 
     public static final String MEDIA_FILE_SIZE = "com.miyue.dao.FILE_SIZE";
     public static final String MEDIA_FILE_NAME = "com.miyue.dao.FILE_NAME";
+    public static final String MEDIA_NET_PLAY_URL = "com.miyue.dao.NET_PLAY_URL";
 
-    private ConcurrentHashMap<String, MediaMetadataCompat> mLocalMusics;
-    private ConcurrentHashMap<String, MediaMetadataCompat> mDownMusics;
-    private ConcurrentHashMap<String, MediaMetadataCompat> mRecentMusics;
+    private LinkedHashMap<String, MediaMetadataCompat> mLocalMusics;
+    private LinkedHashMap<String, MediaMetadataCompat> mDownMusics;
+    private LinkedHashMap<String, MediaMetadataCompat> mRecentMusics;
+    private LinkedHashMap<String, MediaMetadataCompat> mFavoriteMusic;
 
     private final Set<String> mFavoriteTracks;
+
+    public MediaMetadataCompat getCurernNetMeta() {
+        return mCurernNetMeta;
+    }
+
+    public void setCurernNetMeta(MediaMetadataCompat curernNetMeta) {
+        mCurernNetMeta = curernNetMeta;
+    }
+
+    private MediaMetadataCompat mCurernNetMeta;
 
     enum State {
         NON_INITIALIZED, INITIALIZING, INITIALIZED;
@@ -72,13 +94,12 @@ public class MusicProvider {
                 if(0 == number){
                     initMusic();
                 }
-                retrieveMedia();
                 return mCurrentState;
             }
 
             @Override
             protected void onPostExecute(State current) {
-
+                retrieveMedia();
             }
         }.execute();
     }
@@ -104,7 +125,7 @@ public class MusicProvider {
 
             if(cs.getCount()!=0){
                 cs.moveToFirst();
-                do{
+                do{ //读取系统数据库往自己表中添加数据时，用path的ashcode作为表id和mediaID
                     File musicFile = new File(cs.getString(pathIndex));
                     if(musicFile.exists()){
                         MusicBean bean = new MusicBean();
@@ -121,6 +142,7 @@ public class MusicProvider {
                         bean.setFile_name(filename);
                         String mID = cs.getString(pathIndex);
                         bean.setMediaID(String.valueOf(mID.hashCode()));
+                        bean.setId(Long.valueOf(mID.hashCode()));
                         mDbHelper.addMusic(bean, DbConstans.LOCAL_MUSIC);
                         cs.moveToNext();
                     }else{
@@ -137,8 +159,10 @@ public class MusicProvider {
             if (mCurrentState == State.NON_INITIALIZED) {
                 mCurrentState = State.INITIALIZING;
                 mLocalMusics = buildSyncList(mDbHelper.getLocalMusicList(), DbConstans.LOCAL_MUSIC);
-                mDownMusics = buildSyncList(mDbHelper.getLocalMusicList(), DbConstans.DOWNLOAD);
-                mRecentMusics = buildSyncList(mDbHelper.getLocalMusicList(), DbConstans.RECENT);
+                mDownMusics = buildSyncList(mDbHelper.getDownLoadMusicList(), DbConstans.DOWNLOAD);
+                mRecentMusics = buildSyncList(mDbHelper.getRecentMusicList(), DbConstans.RECENT);
+                mFavoriteMusic = buildSyncList(mDbHelper.getFavoriteList(), DbConstans.FAVORITES);
+
                 mCurrentState = State.INITIALIZED;
             }
         } finally {
@@ -154,6 +178,8 @@ public class MusicProvider {
     public boolean isInitialized() {
         return mCurrentState == State.INITIALIZED;
     }
+
+
     /**
      * 搜索本地歌曲的功能
      * */
@@ -171,55 +197,70 @@ public class MusicProvider {
     }
 
     public boolean isFavorite(String mediaID){
-        return mFavoriteTracks.contains(mediaID);
+        String newId = mediaID.split(":")[1];
+        return mFavoriteMusic.containsKey(DbConstans.FAVORITES + ":" + newId);
     }
 
     public void setFavorite(String mediaID, boolean favorite) {
         if (favorite) {
-            mFavoriteTracks.add(mediaID);
+            addFavoriteMusic(mediaID);
         } else {
-            mFavoriteTracks.remove(mediaID);
+            deleteFavoriteMusin(mediaID);
         }
     }
     /**
      * 创建本地音乐，下载歌曲，最近歌曲等列表
      * */
-    private ConcurrentHashMap<String, MediaMetadataCompat> buildSyncList(List<MusicBean> musicBeans,
-                                                                         String whichTable){
-        ConcurrentHashMap<String, MediaMetadataCompat> conBeans =
-                new ConcurrentHashMap<>();
-        for(int i=0; i<musicBeans.size(); i++){
-            MusicBean bean = musicBeans.get(i);
-            conBeans.put(whichTable + ":" + bean.getMediaID(),
-                    buildFromMusicBean(bean, whichTable));
+    private LinkedHashMap<String, MediaMetadataCompat> buildSyncList(List<MusicBean> musicBeans,
+                                                                   String whichTable){
+        LinkedHashMap<String, MediaMetadataCompat> conBeans;
+        if(DbConstans.RECENT.equals(whichTable)){
+            conBeans = new LinkedHashMap<>(32,0.75f,true);//按照访问顺序排
+            for(int i=musicBeans.size()-1; i>=0; i--){
+                MusicBean bean = musicBeans.get(i);
+                conBeans.put(whichTable + ":" + bean.getMediaID(),
+                        MusicUtils.buildFromMusicBean(bean, whichTable));
+            }
+        } else {
+            conBeans = new LinkedHashMap<>();
+            for(int i=0; i<musicBeans.size(); i++){
+                MusicBean bean = musicBeans.get(i);
+                conBeans.put(whichTable + ":" + bean.getMediaID(),
+                        MusicUtils.buildFromMusicBean(bean, whichTable));
+            }
         }
+
         return conBeans;
     }
 
     public MediaMetadataCompat getMusic(String mediaID, String whichdb){
         if(TextUtils.equals(DbConstans.LOCAL_MUSIC,whichdb) && mLocalMusics != null){
            return mLocalMusics.get(mediaID);
-        } else if(TextUtils.equals(DbConstans.RECENT,whichdb)  && mRecentMusics != null){
+        } else if(TextUtils.equals(DbConstans.RECENT,whichdb) && mRecentMusics != null){
             return mRecentMusics.get(mediaID);
-        } else if(TextUtils.equals(DbConstans.DOWNLOAD,whichdb)  && mDownMusics != null){
+        } else if(TextUtils.equals(DbConstans.DOWNLOAD,whichdb) && mDownMusics != null){
             return mDownMusics.get(mediaID);
+        }else if(TextUtils.equals(DbConstans.FAVORITES,whichdb) && mFavoriteMusic != null){
+            return mFavoriteMusic.get(mediaID);
         }
         return null;
     }
 
-    public ConcurrentHashMap<String, MediaMetadataCompat> getMusic(String whichdb){
+    public LinkedHashMap<String, MediaMetadataCompat> getMusic(String whichdb){
         if(TextUtils.equals(DbConstans.LOCAL_MUSIC,whichdb) && mLocalMusics != null){
             return mLocalMusics;
         } else if(TextUtils.equals(DbConstans.RECENT,whichdb)  && mRecentMusics != null){
             return mRecentMusics;
         } else if(TextUtils.equals(DbConstans.DOWNLOAD,whichdb)  && mDownMusics != null){
             return mDownMusics;
+        } else if(TextUtils.equals(DbConstans.FAVORITES,whichdb)  && mFavoriteMusic != null){
+            return mFavoriteMusic;
         }
         return null;
     }
     public List<MediaBrowserCompat.MediaItem> getMediaItemList(String whichdb) {
         List<MediaBrowserCompat.MediaItem> mediaItems = new ArrayList<>();
-        ConcurrentHashMap<String, MediaMetadataCompat> whichList;
+        LinkedHashMap<String, MediaMetadataCompat> whichList;
         //判断当前是否有list
 //        if (!MediaIDHelper.isBrowseable(mediaId)) {
 //            return mediaItems;
@@ -230,6 +271,8 @@ public class MusicProvider {
             whichList = mRecentMusics;
         } else if(DbConstans.DOWNLOAD.equals(whichdb) && mDownMusics != null){
             whichList = mDownMusics;
+        } else if(DbConstans.FAVORITES.equals(whichdb) && mFavoriteMusic != null){
+            whichList = mFavoriteMusic;
         } else {
             return null;
         }
@@ -243,31 +286,106 @@ public class MusicProvider {
     private MediaBrowserCompat.MediaItem createMediaItem(MediaMetadataCompat metadata) {
         return new MediaBrowserCompat.MediaItem(metadata.getDescription(),
                 MediaBrowserCompat.MediaItem.FLAG_PLAYABLE);
-
     }
 
-    private MediaMetadataCompat buildFromMusicBean(MusicBean bean, String whichTable){
-        String title = bean.getTitle();
-        String subtitle = (bean.getArtist()+"-"+bean.getAlbum());
-        String album = bean.getAlbum();
-        String artist = bean.getArtist();
-        String path = bean.getPath();
-        Long duration = Long.valueOf(bean.getDuration());
-        String file_size = bean.getFile_size();
-        String file_name = bean.getFile_name();
-        String mediaID = whichTable + ":" + bean.getMediaID();
+
+    /***
+     *  移除喜爱的音乐
+     */
+    public void deleteFavoriteMusin(String mediaID){
+        String[] media = mediaID.split(":");
+        mDbHelper.deleteFavorite(media[1]);
+        mFavoriteMusic.remove(DbConstans.FAVORITES+":"+media[1]);
+    }
+
+    /**
+     *  添加喜爱的音乐
+     * */
+    public void addFavoriteMusic(String mediaID){
+        String[] media = mediaID.split(":");
+        MediaMetadataCompat metadata = getMusic(mediaID,media[0]);
+        MusicBean bean = MusicUtils.buildBeanFromMetadata(metadata);
+        mDbHelper.addMusic(bean, DbConstans.FAVORITES);
+
+        String newId = DbConstans.FAVORITES + ":" + media[1];
+        Bundle bundle = metadata.getBundle();
+        bundle.putString(MediaMetadataCompat.METADATA_KEY_MEDIA_ID, newId);
+        MediaMetadataCompat newdata = MusicUtils.createMetadataFromQQSong(bundle);
+        mFavoriteMusic.put(newId, newdata);
+    }
+
+    /**删除某首歌*/
+    public void deleteMusic(String mediaID){
+        String[] media = mediaID.split(":");
+        MediaMetadataCompat metadata = getMusic(mediaID,media[0]);
+        FileUtils.deleteMusic(metadata.getDescription().getMediaUri().toString());
+        mDbHelper.deleteDownload(media[1]);
+        mDbHelper.deleteLocal(media[1]);
+        mDbHelper.deleteRecent(media[1]);
+        mDbHelper.deleteFavorite(media[1]);
+
+        refereshCurrentMap(DbConstans.DOWNLOAD);
+        refereshCurrentMap(DbConstans.LOCAL_MUSIC);
+        refereshCurrentMap(DbConstans.RECENT);
+        refereshCurrentMap(DbConstans.FAVORITES);
+    }
+
+    /**下载完成添加到列表*/
+    public void addDownMusic(MediaMetadataCompat metadata){
+        MusicBean bean = MusicUtils.buildBeanFromMetadata(metadata);
+        mDbHelper.addMusic(bean, DbConstans.DOWNLOAD);
+        mDbHelper.addMusic(bean, DbConstans.LOCAL_MUSIC);
+
+        refereshCurrentMap(DbConstans.DOWNLOAD);
+        refereshCurrentMap(DbConstans.LOCAL_MUSIC);
+    }
 
 
-        return new MediaMetadataCompat.Builder()
-                .putString(MediaMetadataCompat.METADATA_KEY_MEDIA_ID, mediaID)
-                .putString(MediaMetadataCompat.METADATA_KEY_TITLE, title)
-                .putString(MediaMetadataCompat.METADATA_KEY_DISPLAY_SUBTITLE,subtitle)
-                .putString(MediaMetadataCompat.METADATA_KEY_ALBUM, album)
-                .putString(MediaMetadataCompat.METADATA_KEY_ARTIST, artist)
-                .putString(MediaMetadataCompat.METADATA_KEY_MEDIA_URI, path)
-                .putLong(MediaMetadataCompat.METADATA_KEY_DURATION, duration)
-                .putString(MusicProvider.MEDIA_FILE_SIZE, file_size)
-                .putString(MusicProvider.MEDIA_FILE_NAME, file_name)
-                .build();
+    /**把网络添加到最近的歌曲，暂时不做*/
+    public void addRecentMusic(MediaMetadataCompat metadata){
+        MusicBean bean = MusicUtils.buildBeanNoIdFromMeta(metadata);
+        if(mRecentMusics.size()>10){
+            //更新数据库中的数据
+            mDbHelper.deleteFirstRecent();
+        }
+        mDbHelper.addMusic(bean, DbConstans.RECENT);
+        refereshCurrentMap(DbConstans.RECENT);
+    }
+
+    /**把本地的添加到最近播放里*/
+    public void addRecentMusic(String mediaID){
+        String[] media = mediaID.split(":");
+        if(DbConstans.RECENT.equals(media[0])){
+            return;
+        }
+        MediaMetadataCompat metadata = getMusic(mediaID, media[0]);
+        MusicBean bean = MusicUtils.buildBeanNoIdFromMeta(metadata);
+        if(mRecentMusics.size()>100){
+            //删除数据库中的第一条数据
+            mDbHelper.deleteFirstRecent();
+        }
+        mDbHelper.addMusic(bean, DbConstans.RECENT);
+        refereshCurrentMap(DbConstans.RECENT);
+    }
+
+    /**刷新当前的数据*/
+    private void refereshCurrentMap(String whichmap){
+        if(DbConstans.DOWNLOAD.equals(whichmap)){
+            mDownMusics.clear();
+            mDownMusics = null;
+            mDownMusics = buildSyncList(mDbHelper.getDownLoadMusicList(), whichmap);
+        } else if(DbConstans.LOCAL_MUSIC.equals(whichmap)){
+            mLocalMusics.clear();
+            mLocalMusics = null;
+            mLocalMusics = buildSyncList(mDbHelper.getLocalMusicList(), whichmap);
+        } else if(DbConstans.RECENT.equals(whichmap)){
+            mRecentMusics.clear();
+            mRecentMusics = null;
+            mRecentMusics = buildSyncList(mDbHelper.getRecentMusicList(), whichmap);
+        } else if(DbConstans.FAVORITES.equals(whichmap)){
+            mFavoriteMusic.clear();
+            mFavoriteMusic = null;
+            mFavoriteMusic = buildSyncList(mDbHelper.getFavoriteList(), whichmap);
+        }
     }
 }

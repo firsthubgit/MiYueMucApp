@@ -5,11 +5,8 @@ import android.app.Fragment;
 import android.app.FragmentManager;
 import android.content.Intent;
 import android.content.pm.PackageManager;
-import android.content.res.AssetManager;
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.graphics.Color;
-import android.graphics.drawable.BitmapDrawable;
 import android.os.Build;
 import android.support.design.widget.TabLayout;
 import android.support.v13.app.FragmentPagerAdapter;
@@ -22,7 +19,6 @@ import android.os.Bundle;
 import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
-import android.widget.ImageView;
 import android.widget.RelativeLayout;
 
 import com.miyue.R;
@@ -32,13 +28,11 @@ import com.miyue.ui.fragment.main.LrcFragment;
 import com.miyue.ui.fragment.main.MyMusicFragment;
 import com.miyue.ui.fragment.main.PlayFragment;
 import com.miyue.ui.fragment.main.SearchFragment;
+import com.miyue.utils.BitmapUtils;
 import com.miyue.utils.DisplayUtils;
-import com.miyue.utils.PreferenUtils;
 import com.miyue.utils.SkinUtils;
 import com.miyue.utils.UtilLog;
-
-import java.io.IOException;
-import java.io.InputStream;
+import com.miyue.widgets.PartBluredView;
 
 public class MainActivity extends BaseActivity {
 
@@ -55,15 +49,22 @@ public class MainActivity extends BaseActivity {
 
     private PlayFragment mPlayFragment = new PlayFragment();
     private LrcFragment mLrcFragment = new LrcFragment();
+    private SearchFragment mSearchFragment = new SearchFragment();
+    private MyMusicFragment mMyMusicFragment = new MyMusicFragment();
 
-
+    private PartBluredView pbv_blured;
+    private RelativeLayout rl_main_background;
+    private int mAllWidth;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         mainActivity = this;
 
+        rl_main_background = (RelativeLayout) findViewById(R.id.rl_main_background);
         rl_main_skin = (RelativeLayout) findViewById(R.id.rl_main_skin);
+        pbv_blured = (PartBluredView) findViewById(R.id.pbv_blured);
+        mAllWidth = DisplayUtils.dip2px(this, 300);
 
         setWindowTopTrans();
         initDrawerLayout();
@@ -75,7 +76,7 @@ public class MainActivity extends BaseActivity {
         mPlayFragment.setSeekBarChangeListener(mLrcFragment);
 
         //初始化背景
-        SkinUtils.initBackground(this, rl_main_skin);
+        udpateBackground();
     }
 
     private void initDrawerLayout(){
@@ -84,11 +85,31 @@ public class MainActivity extends BaseActivity {
                 this, mDrawerLayout, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
         mDrawerLayout.setDrawerListener(toggle);
         mDrawerLayout.setScrimColor(Color.TRANSPARENT);
+        mDrawerLayout.addDrawerListener(new DrawerLayout.DrawerListener() {
+            @Override
+            public void onDrawerSlide(View drawerView, float slideOffset) {
+                pbv_blured.setWidth((int)(mAllWidth*slideOffset));
+                pbv_blured.invalidate();
+            }
+
+            @Override
+            public void onDrawerOpened(View drawerView) {
+            }
+
+            @Override
+            public void onDrawerClosed(View drawerView) {
+            }
+
+            @Override
+            public void onDrawerStateChanged(int newState) {
+                UtilLog.e(TAG, "" + newState);
+            }
+        });
         toggle.syncState();
     }
     private void initViewPager(){
         mViewPager = (ViewPager) findViewById(R.id.main_viewpager);
-        mViewPager.setOffscreenPageLimit(3);
+        mViewPager.setOffscreenPageLimit(4);
         mViewPager.setAdapter(new SectionPagerAdapter(getFragmentManager()));
     }
     /**
@@ -119,9 +140,8 @@ public class MainActivity extends BaseActivity {
 
     @Override
     public void onBackPressed() {
-        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
-        if (drawer.isDrawerOpen(GravityCompat.START)) {
-            drawer.closeDrawer(GravityCompat.START);
+        if (mDrawerLayout.isDrawerOpen(GravityCompat.START)) {
+            mDrawerLayout.closeDrawer(GravityCompat.START);
         } else {
             super.onBackPressed();
         }
@@ -138,13 +158,13 @@ public class MainActivity extends BaseActivity {
         public Fragment getItem(int position) {
             switch (position) {
                 case 0:
-                    return new MyMusicFragment();
+                    return mMyMusicFragment;
                 case 1:
                     return mLrcFragment;
                 case 2:
                     return mPlayFragment;
                 case 3:
-                    return new SearchFragment();
+                    return mSearchFragment;
                 default:
                     return null;
             }
@@ -186,6 +206,12 @@ public class MainActivity extends BaseActivity {
         mLrcFragment.registCallback();
         mPlayFragment.setMediaController(mcc);
         mPlayFragment.registCallback();
+
+        mSearchFragment.setMediaController(mcc);
+        mSearchFragment.registCallback();
+
+        mMyMusicFragment.setMediaController(mcc);
+        mMyMusicFragment.registCallback();
     }
 
     public void setDrawerLock(){
@@ -203,7 +229,10 @@ public class MainActivity extends BaseActivity {
      * 更新背景图
      * */
     public void udpateBackground(){
-        SkinUtils.initBackground(this, rl_main_skin);
+        Bitmap bitmap = SkinUtils.initBackground(this, rl_main_skin);
+        Bitmap bluredBitmap = BitmapUtils.getScaledBluredBitmap(bitmap);
+        pbv_blured.setSrcBitmap(bluredBitmap);
+        mPlayFragment.setRoundBack(bluredBitmap);
     }
 
 }

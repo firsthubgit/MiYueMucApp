@@ -6,6 +6,7 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.media.AudioManager;
 import android.media.MediaPlayer;
+import android.net.Uri;
 import android.net.wifi.WifiManager;
 import android.os.PowerManager;
 import android.support.v4.media.MediaDescriptionCompat;
@@ -13,9 +14,10 @@ import android.support.v4.media.session.PlaybackStateCompat;
 import android.text.TextUtils;
 
 import com.miyue.application.MiYueConstans;
-import com.miyue.dao.MusicProvider;
 import com.miyue.common.listener.Playback.Callback;
 import com.miyue.service.PlayerService;
+import com.miyue.utils.FileUtils;
+import com.miyue.utils.StringUtils;
 import com.miyue.utils.UtilLog;
 
 import java.io.IOException;
@@ -54,7 +56,7 @@ public class RemoteMusicPlayer implements AudioManager.OnAudioFocusChangeListene
     /**获得audio焦点的过程*/
     private boolean mPlayOnFocusGain;
 
-
+    private boolean isPlayFromNet;
     private final AudioManager mAudioManager;
     private CompatMediaPlayer mMediaPlayer;
     private volatile boolean mAudioNoisyReceiverRegistered;
@@ -283,7 +285,7 @@ public class RemoteMusicPlayer implements AudioManager.OnAudioFocusChangeListene
             mCurrentPosition = 0;
             mCurrentMediaId = mediaId;
         }
-
+        //从暂停状态，并且mediaID没有变
         if (mState == PlaybackStateCompat.STATE_PAUSED && !mediaHasChanged && mMediaPlayer != null) {
             configMediaPlayerState();
         } else {
@@ -294,7 +296,13 @@ public class RemoteMusicPlayer implements AudioManager.OnAudioFocusChangeListene
                 createMediaPlayerIfNeeded();
                 mState = PlaybackStateCompat.STATE_BUFFERING;
                 mMediaPlayer.setAudioStreamType(AudioManager.STREAM_MUSIC);
-                mMediaPlayer.setDataSource(description.getMediaUri().toString());
+                Uri uri = description.getMediaUri();
+                if(uri != null && !StringUtils.isNullOrEmpty(uri.toString())){
+                    mMediaPlayer.setDataSource(description.getMediaUri().toString());
+                } else {
+                    mMediaPlayer.setDataSource(
+                            mMusicProvider.getCurernNetMeta().getString(MusicProvider.MEDIA_NET_PLAY_URL));
+                }
 
 
                 // Starts preparing the media player in the background. When
@@ -315,6 +323,9 @@ public class RemoteMusicPlayer implements AudioManager.OnAudioFocusChangeListene
 
             } catch (IOException ex) {
                 ex.printStackTrace();
+                if (mCallback != null) {
+                    mCallback.onError(ex.getMessage());
+                }
             }
         }
     }
@@ -334,10 +345,8 @@ public class RemoteMusicPlayer implements AudioManager.OnAudioFocusChangeListene
             }
         }
     }
-///////////////////////////////////////////////////////////////////////////////////////
-/////////////////////////////////////////////////////////////////////////////////////
-////////////////////////////////////////////////////////////////////////////////////////
-//实现的相关回调
+///*********实现的相关回调******************************************************************////////
+
 
     @Override
     public void onAudioFocusChange(int focusChange) {
@@ -346,7 +355,7 @@ public class RemoteMusicPlayer implements AudioManager.OnAudioFocusChangeListene
             case AudioManager.AUDIOFOCUS_GAIN:
                 // Resume playback or Raise it back to normal
                 mAudioFocus = AUDIO_FOCUSED;
-                mPlayOnFocusGain = true;
+//                mPlayOnFocusGain = true; 重新获得焦点不播放
 
                 break;
             case AudioManager.AUDIOFOCUS_LOSS:
@@ -385,9 +394,14 @@ public class RemoteMusicPlayer implements AudioManager.OnAudioFocusChangeListene
     @Override
     public boolean onError(MediaPlayer mp, int what, int extra) {
         if (mCallback != null) {
-            mCallback.onError("MediaPlayer error " + what + " (" + extra + ")");
+            UtilLog.e(TAG, "onError1: " + what);
+            if(-38 == what){
+                mCallback.onError(MiYueConstans.ERROR_NO_FILE);
+            } else {
+                mCallback.onError("MediaPlayer error " + what + " (" + extra + ")");
+            }
         }
-        return true;
+        return false;//true表示我们处理了这条消息
     }
 
     @Override

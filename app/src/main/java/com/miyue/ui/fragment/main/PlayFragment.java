@@ -3,6 +3,8 @@ package com.miyue.ui.fragment.main;
 
 import android.animation.ObjectAnimator;
 import android.animation.ValueAnimator;
+import android.graphics.Bitmap;
+import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.SystemClock;
@@ -25,17 +27,21 @@ import android.widget.TextView;
 import com.miyue.application.MiYueConstans;
 import com.miyue.R;
 import com.miyue.common.base.BaseMediaFragment;
+import com.miyue.utils.ImageCacheUtils;
 import com.miyue.utils.UtilLog;
 import com.miyue.widgets.RoundImageView;
 
+import java.util.Random;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 
 /**
- * Created by zhangzhendong on 16/3/31.
- */
+*
+* @author ZZD
+* @time 17/6/1 下午1:59
+*/
 public class PlayFragment extends BaseMediaFragment {
 
     private static final String TAG = "PlayFragment";
@@ -71,6 +77,11 @@ public class PlayFragment extends BaseMediaFragment {
     private PlaybackStateCompat mLastPlaybackState;
 
     private SeekBarChangeListener mSeekBarChangeListener;
+
+    private boolean isShowCurrentBackground = true;
+    private Bitmap mCurrentBitmap;
+
+    private boolean hasMusic = false;
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -131,12 +142,18 @@ public class PlayFragment extends BaseMediaFragment {
                     switchMode(mMode, mMediaControllerCompat);
                     break;
                 case R.id.iv_previous_music:
+                    if(!hasMusic){
+                        mActivity.showText("点播放按钮试试");
+                        return;
+                    }
                     mMediaControllerCompat.getTransportControls().skipToPrevious();;
-                    riv_track_pic.setImageResource(R.drawable.roundimageview2);
                     break;
                 case R.id.iv_next_music:
+                    if(!hasMusic){
+                        mActivity.showText("点播放按钮试试");
+                        return;
+                    }
                     mMediaControllerCompat.getTransportControls().skipToNext();
-                    riv_track_pic.setImageResource(R.drawable.roundimage);
                     break;
                 case R.id.iv_play_music:
 //                    PlaybackStateCompat state = mMediaControllerCompat.getPlaybackState();
@@ -266,6 +283,13 @@ public class PlayFragment extends BaseMediaFragment {
                 iv_pause_music.setVisibility(View.GONE);
                 stopSeekbarUpdate();
                 break;
+            case PlaybackStateCompat.STATE_ERROR:
+                if(MiYueConstans.ERROR_NO_FILE.equals(state.getErrorMessage())){
+                    mActivity.showText("本地文件不存在，请手动删除！");
+                } else {
+                    mActivity.showText("该歌曲可能有问题，已跳过！");
+                }
+                break;
             default:
                 UtilLog.e(TAG, "Unhandled state " + state.getState());
         }
@@ -346,8 +370,10 @@ public class PlayFragment extends BaseMediaFragment {
     @Override
     public void onMetadataChangedForClien(MediaMetadataCompat metadata) {
         if (metadata != null) {
+            hasMusic = true;
             updateMediaDescription(metadata.getDescription());
             updateDuration(metadata);
+            updateAlubmPic(metadata);
         }
     }
 
@@ -355,6 +381,48 @@ public class PlayFragment extends BaseMediaFragment {
     public void onConnectedForClien() {
         //四大主Fragment可能不会走这里的
         UtilLog.e(TAG, "启动时候连接上了");
+    }
+
+    private void updateAlubmPic(MediaMetadataCompat metadata){
+        Uri uri = metadata.getDescription().getIconUri();
+        String artUrl = null;
+        if(uri != null){
+            artUrl = uri.toString();
+        }
+        if(artUrl != null){
+            UtilLog.url("ImageURl: " + artUrl);
+            ImageCacheUtils.getInstance().fetch(artUrl, new ImageCacheUtils.FetchListener() {
+                @Override
+                public void onFetched(String artUrl, Bitmap bigImage, Bitmap iconImage) {
+                    isShowCurrentBackground = false;
+                    riv_track_pic.setImageBitmap(bigImage);
+                }
+
+                @Override
+                public void onError(Exception e) {
+                    isShowCurrentBackground = true;
+                    if(mCurrentBitmap != null){
+                        riv_track_pic.setImageBitmap(mCurrentBitmap);
+                    }
+                }
+            });
+        } else {
+            isShowCurrentBackground = true;
+            if(mCurrentBitmap != null){
+                riv_track_pic.setImageBitmap(mCurrentBitmap);
+            }
+        }
+    }
+
+    public void setRoundBack(Bitmap bitmap){
+        if(mCurrentBitmap != null){
+            mCurrentBitmap.recycle();
+            mCurrentBitmap = null;
+        }
+        mCurrentBitmap = bitmap;
+        if(isShowCurrentBackground && riv_track_pic != null){
+            riv_track_pic.setImageBitmap(mCurrentBitmap);
+        }
     }
 
     public void setSeekBarChangeListener(SeekBarChangeListener sbclistener){

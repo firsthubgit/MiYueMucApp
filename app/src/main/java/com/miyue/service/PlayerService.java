@@ -5,12 +5,10 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
-import android.os.IBinder;
 import android.os.Message;
 import android.os.RemoteException;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
-import android.support.v4.app.BundleCompat;
 import android.support.v4.media.MediaBrowserCompat;
 import android.support.v4.media.MediaBrowserServiceCompat;
 import android.support.v4.media.MediaMetadataCompat;
@@ -20,7 +18,7 @@ import android.support.v4.media.session.PlaybackStateCompat;
 
 import com.miyue.R;
 import com.miyue.application.MiYueConstans;
-import com.miyue.dao.MusicProvider;
+import com.miyue.service.playback.MusicProvider;
 import com.miyue.notification.MediaNotificationManager;
 import com.miyue.service.playback.PlayerController;
 import com.miyue.service.playback.QueueManager;
@@ -68,7 +66,7 @@ public class PlayerService extends MediaBrowserServiceCompat implements
 
                     @Override
                     public void onMetadataRetrieveError() {
-                        mPlayerController.updatePlaybackState();
+                        mPlayerController.updatePlaybackState("扫描数据没有成功", null);
                     }
 
                     @Override
@@ -103,7 +101,7 @@ public class PlayerService extends MediaBrowserServiceCompat implements
                 intent, PendingIntent.FLAG_UPDATE_CURRENT);
         mSession.setSessionActivity(pi);
 
-        mPlayerController.updatePlaybackState();
+        mPlayerController.updatePlaybackState(null, null);
 
         try {
             mMediaNotificationManager = new MediaNotificationManager(this);
@@ -199,7 +197,6 @@ public class PlayerService extends MediaBrowserServiceCompat implements
         if ("".equals(parentId)) {
             result.sendResult(new ArrayList<MediaBrowserCompat.MediaItem>());
         } else if (mMusicProvider.isInitialized()) {
-            // if music library is ready, return immediately
             result.sendResult(mMusicProvider.getMediaItemList(parentId));
         } else {
             // otherwise, only return results when the music library is retrieved

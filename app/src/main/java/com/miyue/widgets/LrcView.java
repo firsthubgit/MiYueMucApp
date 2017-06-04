@@ -201,7 +201,7 @@ public class LrcView extends View implements ILrcView {
         BitmapFactory.Options options = new BitmapFactory.Options();
         options.inDensity = 30;
         options.inTargetDensity = 30;
-        arrowBitmap = BitmapFactory.decodeResource(context.getResources(), R.raw.lrc_arrow, options);
+        arrowBitmap = BitmapFactory.decodeResource(context.getResources(), R.raw.lrc_arrow_new, options);
     }
     private int mTotleDrawRow;
 
@@ -277,7 +277,7 @@ public class LrcView extends View implements ILrcView {
         if (mIsDrawTimeLine) {
             float y = getHeight() / 2 + getScrollY();
             float x = getWidth();
-            canvas.drawBitmap(arrowBitmap, x - 105, y - arrowBitmap.getHeight()/2, null);
+            canvas.drawBitmap(arrowBitmap, x - arrowBitmap.getWidth() - 20, y - arrowBitmap.getHeight()/2, null);
             canvas.drawText(mLrcRows.get(mCurRow).getTimeStr().substring(0, 5), 20, y + 10, mPaintForTimeLine);
             canvas.drawLine(100, y, getWidth() - 110, y, mPaintForTimeLine);
 
@@ -374,7 +374,6 @@ public class LrcView extends View implements ILrcView {
                 break;
             case MotionEvent.ACTION_UP:
             case MotionEvent.ACTION_CANCEL:
-                //判断点击的范围是不是在ArrowBitmap范围内
                 if (!canDrag) {
                     if (onLrcClickListener != null) {
                         onLrcClickListener.onClick();
@@ -392,7 +391,8 @@ public class LrcView extends View implements ILrcView {
                     timer.schedule(mDelayTask, 2000);
                     isDelayTaskRun = false;
                 }
-                if(pointx<getWidth() && pointx > (getWidth()-arrowBitmap.getWidth())
+                //判断点击的范围是不是在ArrowBitmap范围内
+                if(pointx<getWidth() && pointx > (getWidth()- arrowBitmap.getWidth() -20)
                         && (pointy<(getHeight()/2+(arrowBitmap.getHeight()/2))&&pointy>getHeight()/2-(arrowBitmap.getHeight()/2))
                         && !isDelayTaskRun){
                     mDelayTask.cancel();

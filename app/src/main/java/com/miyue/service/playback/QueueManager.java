@@ -8,19 +8,21 @@ import android.support.v4.media.session.MediaSessionCompat;
 
 import com.miyue.application.DbConstans;
 import com.miyue.application.MiYueConstans;
-import com.miyue.dao.MusicProvider;
+import com.miyue.utils.MusicUtils;
+import com.miyue.utils.StringUtils;
 import com.miyue.utils.UtilLog;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Random;
-import java.util.concurrent.ConcurrentHashMap;
 
 /**
- * Created by zhangzhendong on 17/5/20.
- */
-
+*
+* @author ZZD
+* @time 17/5/20 下午1:59
+*/
 public class QueueManager {
     private static final String TAG = "QueueManager";
 
@@ -33,6 +35,9 @@ public class QueueManager {
     private List<MediaSessionCompat.QueueItem> mPlayingQueue;
     private int mCurrentIndex;
 
+    public boolean isNetPlay = false;
+
+
     /**
      * 他的值有可能是
      *  DbConstans.LOCAL_MUSIC
@@ -40,8 +45,9 @@ public class QueueManager {
      *  DbConstans.DOWNLOAD
      *  DbConstans.Recent
      *
-     *  参考 {@link com.miyue.dao.MusicProvider#buildFromMusicBean},
+     *  参考 {@link MusicProvider#},
      *  初始化MediaID的时候，拼接了一个DbConstans.**
+     *  数据库中不带
      * */
     private String mCurrentTable = "";
 
@@ -58,15 +64,14 @@ public class QueueManager {
     public void setRepeatMode(int mode){
         mRepeatMode = mode;
     }
+
     public void setQueueFromMusic(String mediaId) {
         UtilLog.e(TAG, "setQueueFromMusic: " + mediaId);
         String[] str = mediaId.split(":");
         if(mCurrentTable.equals(str[0])){
             mCurrentIndex = getMusicIndexOnQueue(mPlayingQueue, mediaId);
         } else {
-            if("".equals(mCurrentTable)){
-                mCurrentTable = str[0];
-            }
+            mCurrentTable = str[0];
             setCurrentQueue(str[0], getPlayingQueue(mediaId, mMusicProvider));
         }
         updateMetadata();
@@ -116,6 +121,9 @@ public class QueueManager {
      * 点击下一首按钮
      * */
     public boolean skipNextOperation(int from){
+        if(null == mPlayingQueue || mPlayingQueue.size()==0){
+            return false;
+        }
         switch (mRepeatMode){
             case MiYueConstans.MODE_ORDER:
                 return skipQueuePosition(1);
@@ -163,7 +171,7 @@ public class QueueManager {
     public boolean skipQueuePosition(int amount) {
         int index = mCurrentIndex + amount;
         if (index < 0) {
-            index = 0;
+            index = mPlayingQueue.size()-1;
         } else {
             index %= mPlayingQueue.size();
         }
@@ -176,8 +184,14 @@ public class QueueManager {
         return true;
     }
 
+    public MediaMetadataCompat getCurretNetMedia(){
+        return mMusicProvider.getCurernNetMeta();
+    }
 
     public MediaSessionCompat.QueueItem getCurrentMusic() {
+        if(isNetPlay){
+            return  MusicUtils.metadataToQueueItem(getCurretNetMedia(), 0);
+        }
         if (!isIndexPlayable(mCurrentIndex, mPlayingQueue)) {
             return null;
         }
@@ -190,6 +204,41 @@ public class QueueManager {
         }
         return mPlayingQueue.size();
     }
+
+
+    /**刷新当前的列表*/
+    public void refreshQueue(){
+        if(!StringUtils.isNullOrEmpty(mCurrentTable)){
+            mPlayingQueue.clear();
+            LinkedHashMap<String, MediaMetadataCompat>
+                    current = mMusicProvider.getMusic(mCurrentTable);
+            int count = 0;
+            for(MediaMetadataCompat metadata : current.values()){
+                MediaSessionCompat.QueueItem item =
+                        MusicUtils.metadataToQueueItem(metadata, count++);
+                mPlayingQueue.add(item);
+            }
+        }
+    }
+
+
+    public void switchtoLocal(){
+        //第一次直接播放网络的时候，播放完切换到本地
+        if(isNetPlay){
+            isNetPlay = false;
+            if(mPlayingQueue == null || mPlayingQueue.size()==0){
+                setRandomQueue();
+            }
+        }
+    }
+
+
+    public void updateNetMetadata(MediaMetadataCompat mediaData){
+        isNetPlay = true;
+        mMusicProvider.setCurernNetMeta(mediaData);
+        mListener.onMetadataChanged(mediaData);
+    }
+
 
     public void updateMetadata() {
         MediaSessionCompat.QueueItem currentMusic = getCurrentMusic();
@@ -247,7 +296,7 @@ public class QueueManager {
     public List<MediaSessionCompat.QueueItem>
     getPlayingQueue(String mediaId, MusicProvider musicProvider) {
         String[] str = mediaId.split(":");
-        ConcurrentHashMap<String, MediaMetadataCompat>
+        LinkedHashMap<String, MediaMetadataCompat>
                 current = musicProvider.getMusic(str[0]);
         ArrayList<MediaSessionCompat.QueueItem> itemList =
                 new ArrayList<>();
@@ -256,8 +305,8 @@ public class QueueManager {
             if(mediaId.equals(metadata.getDescription().getMediaId())){
                 mCurrentIndex = count;
             }
-            MediaSessionCompat.QueueItem item = new MediaSessionCompat.QueueItem(
-                    metadata.getDescription(), count++);
+            MediaSessionCompat.QueueItem item =
+                    MusicUtils.metadataToQueueItem(metadata, count++);
             itemList.add(item);
         }
         return itemList;
@@ -270,12 +319,8 @@ public class QueueManager {
         void onQueueUpdated(String title, List<MediaSessionCompat.QueueItem> newQueue);
     }
 
-//////////////////////////////////////////////////////////////////
-//////////////////////////////////////////////////////////////////
-//////////////////////////////////////////////////////////////////
 
-
-
+//*********************************************************************************************/
 
 
     public static List<MediaSessionCompat.QueueItem> getPlayingQueueFromSearch(String query,

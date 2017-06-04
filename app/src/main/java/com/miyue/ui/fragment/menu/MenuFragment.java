@@ -2,6 +2,8 @@ package com.miyue.ui.fragment.menu;
 
 import android.app.Fragment;
 import android.content.Context;
+import android.graphics.Bitmap;
+import android.graphics.drawable.BitmapDrawable;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.view.LayoutInflater;
@@ -12,6 +14,7 @@ import android.widget.TextView;
 
 import com.miyue.R;
 import com.miyue.ui.activity.MainActivity;
+import com.miyue.utils.BitmapUtils;
 import com.miyue.utils.DisplayUtils;
 import com.miyue.utils.FragmentControl;
 import com.miyue.utils.UtilLog;
@@ -66,8 +69,6 @@ public class MenuFragment extends Fragment implements View.OnClickListener{
         txt_sleep = ((TextView)view.findViewById(R.id.txt_sleep));
         preference_text = ((TextView)view.findViewById(R.id.preference_text));
         txt_exit = ((TextView)view.findViewById(R.id.txt_exit));
-
-        rl_sliding_menu.setPadding(0, DisplayUtils.getStatusBarHeight(mContext),0,5);
     }
 
     @Override
@@ -94,7 +95,6 @@ public class MenuFragment extends Fragment implements View.OnClickListener{
             case R.id.txt_exit:
 
                 break;
-
         }
         mContext.closeDrawer();
     }

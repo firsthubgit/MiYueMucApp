@@ -1,9 +1,10 @@
 package com.miyue.notification;
 
 /**
- * Created by zhangzhendong on 17/5/21.
- */
-
+*
+* @author ZZD
+* @time 17/5/21 下午6:24
+*/
 import android.app.Notification;
 import android.app.PendingIntent;
 import android.content.BroadcastReceiver;
@@ -27,6 +28,7 @@ import com.miyue.R;
 import com.miyue.application.MiYueConstans;
 import com.miyue.service.PlayerService;
 import com.miyue.ui.activity.MainActivity;
+import com.miyue.utils.ImageCacheUtils;
 import com.miyue.utils.ResourceUtils;
 import com.miyue.utils.UtilLog;
 
@@ -278,7 +280,7 @@ public class MediaNotificationManager extends BroadcastReceiver {
             // it can actually be any valid Android Uri formatted String.
             // async fetch the album art icon
             String artUrl = description.getIconUri().toString();
-            art = null;
+            art = ImageCacheUtils.getInstance().getSmallImage(artUrl);
             if (art == null) {
                 fetchArtUrl = artUrl;
                 // use a placeholder art while the remote art is being downloaded
@@ -313,7 +315,7 @@ public class MediaNotificationManager extends BroadcastReceiver {
 
         setNotificationPlaybackState(notificationBuilder);
         if (fetchArtUrl != null) {
-            fetchBitmapFromURLAsync(fetchArtUrl, notificationBuilder);
+//            fetchBitmapFromURLAsync(fetchArtUrl, notificationBuilder);
         }
 
         return notificationBuilder.build();
