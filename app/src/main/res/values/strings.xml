@@ -11,9 +11,21 @@
     <string name="my_recent_music">最近播放</string>
     <string name="my_favorite_music">我喜欢的</string>
 
-    <string name="skip_ad">跳过广告</string>
+    <string name="skip_ad">跳过</string>
     <string name="menu_title">迷乐音乐播放器</string>
 
+
+    <string name="about">关于</string>
+    <string name="statement">声明：音乐版权归QQ音乐，本App没有任何商业用途</string>
+    <string name="version">V1.0.0</string>
+    <string name="intruduce">所有音乐下载缓存目录在Music/路径下</string>
+    <string name="contact">联系方式：</string>
+    <string name="qqnumber">QQ:1280209233</string>
+    <string name="mailnum">邮箱:nihaoweilai110@163.com</string>
+
+
+
     <string name="unknown">未知</string>
+    <string name="todo_toast">该功能v2版本上线</string>
 
 </resources>

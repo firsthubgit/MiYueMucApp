@@ -1,8 +1,20 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="Encoding">
+    <file url="file://$PROJECT_DIR$/app/src/main/assets/bkgs" charset="GBK" />
+    <file url="file://$PROJECT_DIR$/app/src/main/assets/bkgs/005.jpg" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/app/src/main/assets/bkgs/006.png" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/app/src/main/assets/bkgs/007.jpg" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/app/src/main/assets/bkgs/008.jpg" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/app/src/main/assets/bkgs/009.jpeg" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/app/src/main/assets/bkgs/009.jpg" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/app/src/main/assets/bkgs/010.jpg" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/app/src/main/assets/bkgs/011.jpg" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/app/src/main/assets/bkgs/014.jpg" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/app/src/main/assets/bkgs/15.jpg" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/app/src/main/assets/bkgs/31.png" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/app/src/main/java/com/miyue/ui/fragment/menu/SwitchBgFragment.java" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/app/src/main/java/com/miyue/utils/DisplayUtils.java" charset="UTF-8" />
-    <file url="file://$PROJECT_DIR$/app/src/main/res/assets/bkgs" charset="GBK" />
     <file url="file://$PROJECT_DIR$/app/src/main/res/drawable-xhdpi/icon_back.png" charset="GBK" />
     <file url="file://$PROJECT_DIR$/app/src/main/res/drawable-xhdpi/roundimage.png" charset="GBK" />
     <file url="file://$PROJECT_DIR$/app/src/main/res/drawable-xhdpi/skin_ico_checked.png" charset="GBK" />

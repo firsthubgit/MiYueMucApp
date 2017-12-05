@@ -1,7 +1,9 @@
 package com.miyue.ui.fragment.main;
 
+import android.app.Activity;
 import android.content.Context;
 import android.os.AsyncTask;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
@@ -9,6 +11,7 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.media.MediaMetadataCompat;
 import android.support.v4.media.session.PlaybackStateCompat;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -21,6 +24,7 @@ import android.widget.TextView;
 import com.miyue.R;
 import com.miyue.application.DbConstans;
 import com.miyue.application.MiYueConstans;
+import com.miyue.common.base.BaseActivity;
 import com.miyue.common.base.BaseMediaFragment;
 import com.miyue.common.listener.CallBack;
 import com.miyue.ui.adapter.MyMusicListAdapter;
@@ -50,15 +54,16 @@ public class MyMusicFragment extends BaseMediaFragment {
     private TextView tv_local_num, tv_download_num, tv_recent_num;
     private LocalMusicFragment localMusicFragment;
     private DownloadFragment mDownloadFragment;
-    private Context mContext;
     private RecentPlayFragment mRecentPlayFragment;
 
     private CommenListFragment mCommenListFragment;
     private MyMusicListAdapter mAlbumAdapter;
+
+
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        mContext = getActivity();
+        mActivity = (BaseActivity) getActivity();
     }
 
 

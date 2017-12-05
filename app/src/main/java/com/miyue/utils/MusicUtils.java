@@ -7,7 +7,10 @@ import android.support.v4.media.session.MediaSessionCompat;
 import com.greendao.MusicBean;
 import com.miyue.application.MiYueConstans;
 import com.miyue.bean.QQSong;
+import com.miyue.bean.SongsInfo;
 import com.miyue.service.playback.MusicProvider;
+
+import java.util.ArrayList;
 
 /**
 * 各种封装的音乐类型的数据的转换
@@ -58,7 +61,16 @@ public class MusicUtils {
             bundle.putString(MediaMetadataCompat.METADATA_KEY_MEDIA_ID, song[0]);
             //播放连接
             bundle.putString(MusicProvider.MEDIA_NET_PLAY_URL, uri);
-            bundle.putString(MediaMetadataCompat.METADATA_KEY_ALBUM, song[5]);
+
+            String album = "";
+            if(song.length >= 6){
+                if(song[5].contains("&amp;")){
+                    album = StringUtils.unicodeToKoreaForAlbum(song[5]);
+                } else {
+                    album = song[5];
+                }
+            }
+            bundle.putString(MediaMetadataCompat.METADATA_KEY_ALBUM, album);
             //歌手
             bundle.putString(MediaMetadataCompat.METADATA_KEY_ARTIST, qqSong.getFsinger());
             //时长
@@ -185,4 +197,20 @@ public class MusicUtils {
     }
 
 
+    public static ArrayList<QQSong> dealQQsong(SongsInfo<QQSong> songsInfo){
+        ArrayList<QQSong> qqSongs = new ArrayList<>();
+        ArrayList<QQSong> qqlist = songsInfo.getList();
+        for(QQSong song : qqlist){
+            if(song.getFsong().contains("&#")){
+                String songName = StringUtils.unicode2Korea(song.getFsong());
+                song.setFsong(songName);
+            }
+            if(song.getFsinger().contains("&#")){
+                String singer = StringUtils.unicode2Korea(song.getFsinger());
+                song.setFsinger(singer);
+            }
+            qqSongs.add(song);
+        }
+        return qqSongs;
+    }
 }

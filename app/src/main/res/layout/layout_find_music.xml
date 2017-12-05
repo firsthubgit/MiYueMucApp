@@ -33,6 +33,16 @@
             android:cursorVisible="false"
             android:textCursorDrawable="@drawable/edittext_cursor"
             />
+
+        <ImageView
+            android:id="@+id/iv_recognize_sound"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentRight="true"
+            android:layout_centerVertical="true"
+            android:layout_marginRight="6dp"
+            android:background="@drawable/ic_notification"
+            />
         <ImageView
             android:id="@+id/iv_clear_edit"
             android:layout_width="wrap_content"

@@ -13,10 +13,13 @@ import com.miyue.application.MiYueConstans;
 import com.miyue.bean.QQSong;
 import com.miyue.bean.SongsInfo;
 import com.miyue.utils.FileUtils;
+import com.miyue.utils.MusicUtils;
+import com.miyue.utils.StringUtils;
 import com.miyue.utils.UtilLog;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.ArrayList;
 
 
 /**
@@ -63,10 +66,11 @@ public class HttpApi {
 
         String keywordURL = QQ_SEARCH_URL.replace("周杰伦", keyword).replace("页数", page + "");
         UtilLog.url("URL:" + keywordURL);
-
         try {
             String songJson = manager.run(keywordURL);
             SongsInfo<QQSong> songsInfo = JsonParser.parseQQForSong(songJson);
+            ArrayList<QQSong> tempList = MusicUtils.dealQQsong(songsInfo);
+            songsInfo.setList(tempList);
             return songsInfo;
         } catch (IOException e) {
             e.printStackTrace();

@@ -87,8 +87,10 @@ public class LocalMusicFragment extends BaseMediaFragment implements
 
         iv_my_more.setOnClickListener(clickListener);
         ib_my_back.setOnClickListener(clickListener);
-        mBrowseAdapter = new BrowseAdapter(mActivity);
-        mBrowseAdapter.setOnMoreClickListener(this);
+        if(mBrowseAdapter == null){
+            mBrowseAdapter = new BrowseAdapter(mActivity);
+            mBrowseAdapter.setOnMoreClickListener(this);
+        }
         lv_my_music_list.setAdapter(mBrowseAdapter);
         lv_my_music_list.setOnItemClickListener(this);
         return  rootView;

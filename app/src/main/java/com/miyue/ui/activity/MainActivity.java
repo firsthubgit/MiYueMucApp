@@ -55,6 +55,7 @@ public class MainActivity extends BaseActivity {
     private PartBluredView pbv_blured;
     private RelativeLayout rl_main_background;
     private int mAllWidth;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -138,15 +139,20 @@ public class MainActivity extends BaseActivity {
         }
     }
 
+
     @Override
     public void onBackPressed() {
         if (mDrawerLayout.isDrawerOpen(GravityCompat.START)) {
             mDrawerLayout.closeDrawer(GravityCompat.START);
+        } else if (getFragmentManager().getBackStackEntryCount() == 0) {
+            Intent i = new Intent(Intent.ACTION_MAIN);
+            i.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+            i.addCategory(Intent.CATEGORY_HOME);
+            startActivity(i);
         } else {
             super.onBackPressed();
         }
     }
-
 
     public class SectionPagerAdapter extends FragmentPagerAdapter {
 

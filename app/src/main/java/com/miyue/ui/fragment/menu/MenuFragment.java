@@ -25,23 +25,25 @@ import com.miyue.utils.UtilLog;
 
 public class MenuFragment extends Fragment implements View.OnClickListener{
 
-    private TextView txt_scan;
-    private TextView txt_background;
+    private TextView tv_menu_scan;
+    private TextView tv_menu_background;
     private TextView txt_sleep;
-    private TextView preference_text;
-    private TextView txt_exit;
+    private TextView tv_menu_preference;
+    private TextView tv_menu_about;
 
     private RelativeLayout rl_sliding_menu;
 
 
-    private MainActivity mContext;
+    private MainActivity mActivity;
 
     private SwitchBgFragment mSwitchBgFragment;
+
+    private AboutFragment mAboutFragment;
     @Override
     public void onAttach(Context context) {
         super.onAttach(context);
         if(context instanceof MainActivity){
-            mContext = (MainActivity)context;
+            mActivity = (MainActivity)context;
         }
     }
 
@@ -55,31 +57,31 @@ public class MenuFragment extends Fragment implements View.OnClickListener{
     }
 
     private void registerListener() {
-        txt_scan.setOnClickListener(this);
-        txt_background.setOnClickListener(this);
+        tv_menu_scan.setOnClickListener(this);
+        tv_menu_background.setOnClickListener(this);
         txt_sleep.setOnClickListener(this);
-        preference_text.setOnClickListener(this);
-        txt_exit.setOnClickListener(this);
+        tv_menu_preference.setOnClickListener(this);
+        tv_menu_about.setOnClickListener(this);
     }
 
     private void initView(View view) {
         rl_sliding_menu = (RelativeLayout) view.findViewById(R.id.rl_sliding_menu);
-        txt_scan = ((TextView)view.findViewById(R.id.txt_scan));
-        txt_background = ((TextView)view.findViewById(R.id.txt_background));
+        tv_menu_scan = ((TextView)view.findViewById(R.id.tv_menu_scan));
+        tv_menu_background = ((TextView)view.findViewById(R.id.tv_menu_background));
         txt_sleep = ((TextView)view.findViewById(R.id.txt_sleep));
-        preference_text = ((TextView)view.findViewById(R.id.preference_text));
-        txt_exit = ((TextView)view.findViewById(R.id.txt_exit));
+        tv_menu_preference = ((TextView)view.findViewById(R.id.tv_menu_preference));
+        tv_menu_about = ((TextView)view.findViewById(R.id.tv_menu_about));
     }
 
     @Override
     public void onClick(View v) {
         switch (v.getId()){
-            case R.id.txt_scan:
-
+            case R.id.tv_menu_scan:
+                mActivity.showText(getString(R.string.todo_toast));
                 break;
-            case R.id.txt_background:
+            case R.id.tv_menu_background:
                 UtilLog.e("MenuFragment","show background");
-                mContext.setDrawerLock();
+                mActivity.setDrawerLock();
                 mSwitchBgFragment = (SwitchBgFragment) FragmentControl.getFragConInstance().getMainFragment("SwitchBgFragment");
                 if(mSwitchBgFragment == null){
                     mSwitchBgFragment = new SwitchBgFragment();
@@ -87,15 +89,21 @@ public class MenuFragment extends Fragment implements View.OnClickListener{
                 FragmentControl.getFragConInstance().showMainFragment(mSwitchBgFragment,"SwitchBgFragment",0);
                 break;
             case R.id.txt_sleep:
-
+                mActivity.showText(getString(R.string.todo_toast));
                 break;
-            case R.id.preference_text:
-
+            case R.id.tv_menu_preference:
+                mActivity.showText(getString(R.string.todo_toast));
                 break;
-            case R.id.txt_exit:
-
+            case R.id.tv_menu_about:
+                UtilLog.e("MenuFragment","show background");
+                mActivity.setDrawerLock();
+                mAboutFragment = (AboutFragment) FragmentControl.getFragConInstance().getMainFragment("AboutFragment");
+                if(mAboutFragment == null){
+                    mAboutFragment = new AboutFragment();
+                }
+                FragmentControl.getFragConInstance().showMainFragment(mAboutFragment,"AboutFragment",0);
                 break;
         }
-        mContext.closeDrawer();
+        mActivity.closeDrawer();
     }
 }

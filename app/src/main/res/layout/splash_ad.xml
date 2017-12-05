@@ -21,13 +21,4 @@
         android:background="@drawable/selector_skip_ad"
         />
 
-    <TextView
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:text="广告位置火热招租"
-        android:textSize="20dp"
-        android:gravity="center"
-        android:layout_alignParentTop="true"
-        android:layout_alignParentStart="true"></TextView>
-
 </RelativeLayout>

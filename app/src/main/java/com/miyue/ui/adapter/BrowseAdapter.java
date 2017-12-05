@@ -83,6 +83,13 @@ public class BrowseAdapter extends BaseAdapter {
             holder.tv_music_name = (TextView) convertView.findViewById(R.id.tv_music_name);
             holder.tv_artist = (TextView) convertView.findViewById(R.id.tv_music_singer);
             holder.iv_list_icon = (ImageView) convertView.findViewById(R.id.iv_list_icon);
+
+            holder.iv_list_icon.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    listener.onMoreClick(description.getMediaId());
+                }
+            });
             convertView.setTag(holder);
         } else {
             holder = (Holder) convertView.getTag();
@@ -90,12 +97,7 @@ public class BrowseAdapter extends BaseAdapter {
         }
 
 
-        holder.iv_list_icon.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                listener.onMoreClick(description.getMediaId());
-            }
-        });
+
 
         holder.tv_music_name.setText(description.getTitle());
         holder.tv_artist.setText(description.getSubtitle() + " - " + description.getDescription());

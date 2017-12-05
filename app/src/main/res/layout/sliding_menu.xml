@@ -40,7 +40,7 @@
             android:orientation="vertical">
 
             <TextView
-                android:id="@+id/txt_scan"
+                android:id="@+id/tv_menu_scan"
                 style="@style/SlidingMenu.TextView.ItemTitle"
                 android:layout_width="fill_parent"
                 android:drawableLeft="@mipmap/icon_search_dark"
@@ -50,7 +50,7 @@
             <View style="@style/SlidingMenu.View.SplitLine" />
 
             <TextView
-                android:id="@+id/txt_background"
+                android:id="@+id/tv_menu_background"
                 style="@style/SlidingMenu.TextView.ItemTitle"
                 android:layout_width="fill_parent"
                 android:drawableLeft="@mipmap/icon_change_background"
@@ -68,7 +68,7 @@
             <View style="@style/SlidingMenu.View.SplitLine" />
 
             <TextView
-                android:id="@+id/preference_text"
+                android:id="@+id/tv_menu_preference"
                 android:layout_width="fill_parent"
                 android:layout_height="50.0dip"
                 android:background="@drawable/selector_menu_item"
@@ -83,11 +83,11 @@
             <View style="@style/SlidingMenu.View.SplitLine" />
 
             <TextView
-                android:id="@+id/txt_exit"
+                android:id="@+id/tv_menu_about"
                 style="@style/SlidingMenu.TextView.ItemTitle"
                 android:layout_width="fill_parent"
                 android:drawableLeft="@mipmap/icon_exit"
-                android:text="退出" />
+                android:text="@string/about" />
         </LinearLayout>
     </ScrollView>
 

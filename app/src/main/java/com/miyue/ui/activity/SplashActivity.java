@@ -21,6 +21,7 @@ import android.widget.RelativeLayout;
 import com.miyue.R;
 import com.miyue.service.PlayerService;
 
+import java.lang.ref.WeakReference;
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -42,21 +43,9 @@ public class SplashActivity extends Activity {
     private Timer mTimer;
     private TimerTask mTimerTask;
 
-    private Handler mHander = new Handler(){
-        @Override
-        public void handleMessage(Message msg) {
-            super.handleMessage(msg);
-            switch (msg.what) {
-                case ANIMATION_END_MSG:
-                    cancelTimer();
-                    Intent newIntent = new Intent();
-                    newIntent.setClass(SplashActivity.this, MainActivity.class);
-                    startActivity(newIntent);
-                    finish();
-                    break;
-            }
-        }
-    };
+    private Handler mHander = new MyHandler(this);
+
+    private AlphaAnimation animation;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -84,63 +73,68 @@ public class SplashActivity extends Activity {
         btn_skip_ad = (Button) findViewById(R.id.btn_skip_ad);
         rl_splash = (RelativeLayout) findViewById(R.id.rl_splash);
 
-//        startService(new Intent(this, PlayerService.class));
+        startService(new Intent(this, PlayerService.class));
         registListenerAndAnimation();
     }
 
+    View.OnClickListener mOnClickListener = new View.OnClickListener() {
+        @Override
+        public void onClick(View v) {
+            switch (v.getId()){
+                case R.id.rl_splash:
+                case R.id.btn_skip_ad:
+                    //如果不添加下面的代码会在动画结束时再次向handler发送信息。
+                    animation.setAnimationListener(null);
+                    // 结束这个页面
+                    mHander.sendEmptyMessage(ANIMATION_END_MSG);
+                    // 跳转到广告页
+                    break;
+            }
+        }
+    };
 
+    Animation.AnimationListener mAnimationListener = new Animation.AnimationListener() {
+        @Override
+        public void onAnimationStart(Animation animation) {
+
+        }
+
+        @Override
+        public void onAnimationEnd(Animation animation) {
+            mTimer= new Timer(true);
+            mTimerTask = new TimerTask() {
+                @Override
+                public void run() {
+                    mHander.obtainMessage(ANIMATION_END_MSG).sendToTarget();
+                }
+            };
+            mTimer.schedule(mTimerTask, adDuration);
+        }
+
+        @Override
+        public void onAnimationRepeat(Animation animation) {
+
+        }
+    };
     private void registListenerAndAnimation() {
         // 透明动画（从完全透明到不透明，分别对应第一个参数和第二个参数）
-        final AlphaAnimation animation = new AlphaAnimation(0.8f, 1.0f);
+        animation = new AlphaAnimation(0.8f, 1.0f);
         // 动画效果时间为3秒
-        animation.setDuration(3000);
+        animation.setDuration(2000);
         // 动画监听
-        animation.setAnimationListener(new Animation.AnimationListener() {
-            @Override
-            public void onAnimationStart(Animation animation) { // 动画开始时执行此方法
-            }
-
-            @Override
-            public void onAnimationRepeat(Animation animation) { // 动画重复调用时执行此方法
-            }
-
-            @Override
-            public void onAnimationEnd(Animation animation) { // 动画结束时执行此方法
-                mTimer= new Timer(true);
-                TimerTask timerTask = new TimerTask() {
-                    @Override
-                    public void run() {
-                        mHander.obtainMessage(ANIMATION_END_MSG).sendToTarget();
-                    }
-                };
-                mTimer.schedule(timerTask, adDuration);
-            }
-        });
+        animation.setAnimationListener(mAnimationListener);
         // 设置开始动画
         rl_splash.startAnimation(animation);
 
-        rl_splash.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                //如果不添加下面的代码会在动画结束时再次向handler发送信息。
-                animation.setAnimationListener(null);
-                // 结束这个页面
-                mHander.sendEmptyMessage(ANIMATION_END_MSG);
-                // 跳转到广告页
-                //............
-            }
-        });
-        btn_skip_ad.setOnClickListener(new View.OnClickListener() {
-            // 点击跳过按钮直接发送动画结束信息，跳过广告
-            @Override
-            public void onClick(View v) {
-                animation.setAnimationListener(null);
-                mHander.sendEmptyMessage(ANIMATION_END_MSG);
-            }
-        });
+        rl_splash.setOnClickListener(mOnClickListener);
+        btn_skip_ad.setOnClickListener(mOnClickListener);
     }
 
-    private void cancelTimer(){
+    public void clearAnima(){
+        rl_splash.clearAnimation();
+        animation.reset();
+    }
+    public void cancelTimer(){
         if (mTimer != null) {
             mTimer.cancel();
             mTimer = null;
@@ -148,6 +142,41 @@ public class SplashActivity extends Activity {
         if (mTimerTask != null) {
             mTimerTask.cancel();
             mTimerTask = null;
+        }
+    }
+
+    @Override
+    protected void onDestroy() {
+        rl_splash.clearAnimation();
+        mHander.removeCallbacksAndMessages(null);
+        mHander = null;
+        super.onDestroy();
+    }
+
+    private static class MyHandler extends Handler {
+        private final WeakReference<SplashActivity> mActivity;
+
+        public MyHandler(SplashActivity activity) {
+            mActivity = new WeakReference<SplashActivity>(activity);
+        }
+
+        @Override
+        public void handleMessage(Message msg) {
+            if (mActivity.get() == null) {
+                return;
+            }
+            SplashActivity activity = (SplashActivity)mActivity.get();
+            switch (msg.what) {
+                case ANIMATION_END_MSG:
+                    activity.clearAnima();
+                    activity.cancelTimer();
+                    Intent newIntent = new Intent();
+                    newIntent.setClass(activity, MainActivity.class);
+                    activity.startActivity(newIntent);
+                    activity.finish();
+                    break;
+            }
+            mActivity.clear();
         }
     }
 }

@@ -1,13 +1,17 @@
 package com.miyue.ui.fragment.main;
 
+import android.app.Activity;
 import android.content.Context;
 import android.net.Uri;
 import android.os.AsyncTask;
+import android.os.Build;
 import android.os.Bundle;
+import android.os.Environment;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.media.MediaMetadataCompat;
 import android.support.v4.media.session.PlaybackStateCompat;
+import android.util.Log;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -25,6 +29,15 @@ import android.widget.TextView;
 
 import com.greendao.DBHelper;
 import com.greendao.SearchHis;
+import com.iflytek.cloud.ErrorCode;
+import com.iflytek.cloud.InitListener;
+import com.iflytek.cloud.RecognizerListener;
+import com.iflytek.cloud.RecognizerResult;
+import com.iflytek.cloud.SpeechConstant;
+import com.iflytek.cloud.SpeechError;
+import com.iflytek.cloud.SpeechRecognizer;
+import com.iflytek.cloud.ui.RecognizerDialog;
+import com.iflytek.cloud.ui.RecognizerDialogListener;
 import com.miyue.R;
 import com.miyue.application.MiYueConstans;
 import com.miyue.bean.QQSong;
@@ -35,12 +48,18 @@ import com.miyue.http.HttpApi;
 import com.miyue.service.playback.MusicProvider;
 import com.miyue.ui.adapter.OnLineMusicAdapter;
 import com.miyue.utils.FileUtils;
+import com.miyue.utils.JsonParser;
 import com.miyue.utils.MusicUtils;
 import com.miyue.utils.NetWorkUtils;
 import com.miyue.utils.StringUtils;
 import com.miyue.utils.UtilLog;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 
 /**
@@ -54,12 +73,14 @@ public class SearchFragment extends BaseMediaFragment implements OnLineMusicAdap
     private EditText et_find_music;
     private ImageView iv_clear_edit;
 
-    private DBHelper dbHelper;
-    private Context mContext;
     private ListView lv_search_histroy;
     private ListView lv_online_music;
     private RelativeLayout rl_search_histroy;
     private TextView tv_clearall_histroy;
+    private ImageView iv_recognize_sound;
+
+    // 语音听写对象
+    private SpeechRecognizer mIat;
 
     /**历史记录实体类*/
     private List<SearchHis> mSeaList;
@@ -82,14 +103,42 @@ public class SearchFragment extends BaseMediaFragment implements OnLineMusicAdap
 
     private int mTotalCount;
 
+    private String mEngineType;
+    // 语音听写UI
+    private RecognizerDialog mIatDialog;
+
+    // 用HashMap存储听写结果
+    private HashMap<String, String> mIatResults = new LinkedHashMap<String, String>();
 
 
     @Override
     public void onAttach(Context context) {
         super.onAttach(context);
-        mContext = context;
-        dbHelper = DBHelper.getInstance(mContext);
+        // 引擎类型
+        mEngineType = SpeechConstant.TYPE_CLOUD;
+        // 初始化听写Dialog，如果只使用有UI听写功能，无需创建SpeechRecognizer
+        // 使用UI听写功能，请根据sdk文件目录下的notice.txt,放置布局文件和图片资源
+        mIatDialog = new RecognizerDialog(mActivity, mInitListener);
+        mIat = SpeechRecognizer.createRecognizer(mActivity, mInitListener);
         getHistroy();
+    }
+
+    /*SDK API<23时，onAttach(Context)不执行，需要使用onAttach(Activity)。Fragment自身的Bug，v4的没有此问题*/
+    @SuppressWarnings("deprecation")
+    @Override
+    public void onAttach(Activity activity) {
+        super.onAttach(activity);
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M) {
+            // 引擎类型
+            mEngineType = SpeechConstant.TYPE_CLOUD;
+
+            // 初始化听写Dialog，如果只使用有UI听写功能，无需创建SpeechRecognizer
+            // 使用UI听写功能，请根据sdk文件目录下的notice.txt,放置布局文件和图片资源
+            mIatDialog = new RecognizerDialog(mActivity, mInitListener);
+            mIat = SpeechRecognizer.createRecognizer(mActivity, mInitListener);
+
+            getHistroy();
+        }
     }
 
     @Nullable
@@ -102,7 +151,8 @@ public class SearchFragment extends BaseMediaFragment implements OnLineMusicAdap
         tv_clearall_histroy = (TextView) view.findViewById(R.id.tv_clearall_histroy);
 
         rl_search_histroy = (RelativeLayout) view.findViewById(R.id.rl_search_histroy);
-
+        iv_recognize_sound = (ImageView) view.findViewById(R.id.iv_recognize_sound);
+        iv_recognize_sound.setVisibility(View.VISIBLE);
         if(mStList.size() == 0){
             rl_search_histroy.setVisibility(View.GONE);
         }else{
@@ -110,11 +160,11 @@ public class SearchFragment extends BaseMediaFragment implements OnLineMusicAdap
         }
 
         lv_search_histroy = (ListView) view.findViewById(R.id.lv_search_histroy);
-        mHistroyAdapter = new ArrayAdapter<String>(mContext,R.layout.item_seahist_list,R.id.tv_seahistroy,mStList);
+        mHistroyAdapter = new ArrayAdapter<String>(mActivity,R.layout.item_seahist_list,R.id.tv_seahistroy,mStList);
         lv_search_histroy.setAdapter(mHistroyAdapter);
 
         lv_online_music = (ListView) view.findViewById(R.id.lv_online_music);
-        mOnLineMusicAdapter = new OnLineMusicAdapter(mContext,mQQSongs);
+        mOnLineMusicAdapter = new OnLineMusicAdapter(mActivity,mQQSongs);
         mOnLineMusicAdapter.setOnDownClickListener(this);
         lv_online_music.setAdapter(mOnLineMusicAdapter);
         lv_online_music.setVisibility(View.GONE);
@@ -123,11 +173,38 @@ public class SearchFragment extends BaseMediaFragment implements OnLineMusicAdap
         return view;
     }
 
+
+    int ret = 0; // 函数调用返回值
+
     private void initListener() {
+        iv_recognize_sound.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                mActivity.showText("请开始说话111...");
+                // 设置参数
+                boolean isShowDialog = true;
+                setParam();
+                if (isShowDialog) {
+                    // 显示听写对话框
+                    mIatDialog.setListener(mRecognizerDialogListener);
+                    mIatDialog.show();
+                    mActivity.showText("请开始说话...");
+                } else {
+                    // 不显示听写对话框
+                    ret = mIat.startListening(mRecognizerListener);
+                    if (ret != ErrorCode.SUCCESS) {
+                        mActivity.showText("听写失败,错误码：" + ret);
+                    } else {
+                        mActivity.showText("请开始说话…");
+                    }
+                }
+            }
+        });
+
         tv_clearall_histroy.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                dbHelper.clearAllHistroy();
+                mDBHelper.clearAllHistroy();
                 mStList.clear();
                 mHistroyAdapter.notifyDataSetChanged();
                 rl_search_histroy.setVisibility(View.GONE);
@@ -136,6 +213,7 @@ public class SearchFragment extends BaseMediaFragment implements OnLineMusicAdap
         iv_clear_edit.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                iv_recognize_sound.setVisibility(View.VISIBLE);
                 iv_clear_edit.setVisibility(View.GONE);
                 et_find_music.setText("");
                 mCurrentPage = 1;
@@ -222,7 +300,7 @@ public class SearchFragment extends BaseMediaFragment implements OnLineMusicAdap
 
 
     private void getHistroy(){
-        mSeaList = dbHelper.getSearchHistroy();
+        mSeaList = mDBHelper.getSearchHistroy();
         for(int i = mSeaList.size()-1; i>=0; i--){
             mStList.add(mSeaList.get(i).getSmitem());
         }
@@ -230,7 +308,7 @@ public class SearchFragment extends BaseMediaFragment implements OnLineMusicAdap
 
     private void updateStList(){
         mStList.clear();
-        mSeaList = dbHelper.getSearchHistroy();
+        mSeaList = mDBHelper.getSearchHistroy();
         for(int i = mSeaList.size()-1; i>=0; i--){
             mStList.add(mSeaList.get(i).getSmitem());
         }
@@ -244,11 +322,11 @@ public class SearchFragment extends BaseMediaFragment implements OnLineMusicAdap
         mQQSongs.clear();
         mCurrentPage = 1;
         mTotalCount = 0;
-        InputMethodManager imm = (InputMethodManager) mContext.getSystemService(Context.INPUT_METHOD_SERVICE);
+        InputMethodManager imm = (InputMethodManager) mActivity.getSystemService(Context.INPUT_METHOD_SERVICE);
         imm.hideSoftInputFromWindow(et_find_music.getWindowToken(), 0); //强制隐藏键盘
         SearchHis hisbean = new SearchHis();
         hisbean.setSmitem(keyword);
-        dbHelper.addHistroy(hisbean);
+        mDBHelper.addHistroy(hisbean);
         rl_search_histroy.setVisibility(View.GONE);
         getQQSongTask(keyword);
     }
@@ -295,7 +373,7 @@ public class SearchFragment extends BaseMediaFragment implements OnLineMusicAdap
             super.onPostExecute(qqSongs);
             isLoading = false;
             if(qqSongs == null){
-                ((BaseActivity)mContext).showText("没有网络或者没有数据！");
+                mActivity.showText("没有网络或者没有数据！");
                 return;
             }
             if (qqSongs.getList() != null && qqSongs.getList().size()>0){
@@ -312,10 +390,12 @@ public class SearchFragment extends BaseMediaFragment implements OnLineMusicAdap
                 lv_online_music.setVisibility(View.VISIBLE);
                 mOnLineMusicAdapter.notifyDataSetChanged();
             } else {
-                ((BaseActivity)mContext).showText("没有网络或者没有数据！");
+                mActivity.showText("没有网络或者没有数据！");
             }
         }
     }
+
+
 
 
 /*********************************下载音乐********************************************/
@@ -356,15 +436,15 @@ public class SearchFragment extends BaseMediaFragment implements OnLineMusicAdap
         protected void onPostExecute(Integer size) {
             super.onPostExecute(size);
             if(size>0){
-                ((BaseActivity)mContext).showText("下载成功！");
+                mActivity.showText("下载成功！");
                 Bundle bundle = MusicUtils.creSongBundle(mQQSong, true);
                 bundle.putString(MusicProvider.MEDIA_FILE_SIZE, size + "");
                 mMediaControllerCompat.getTransportControls()
                         .sendCustomAction(MiYueConstans.CUSTOM_ACTION_DOWNLOAD_SUCCESS,bundle);
             } else if(-1 == size){
-                ((BaseActivity)mContext).showText("歌曲存在，不用重复下载！");
+                mActivity.showText("歌曲存在，不用重复下载！");
             } else {
-                ((BaseActivity)mContext).showText("下载失败！");
+                mActivity.showText("下载失败！");
             }
         }
     }
@@ -380,5 +460,163 @@ public class SearchFragment extends BaseMediaFragment implements OnLineMusicAdap
     @Override
     public void onConnectedForClien() {
     }
+
+
+    /**
+     * 初始化监听器。
+     */
+    private InitListener mInitListener = new InitListener() {
+
+        @Override
+        public void onInit(int code) {
+            Log.d(TAG, "SpeechRecognizer init() code = " + code);
+            if (code != ErrorCode.SUCCESS) {
+                mActivity.showText("初始化失败，错误码：" + code);
+            }
+        }
+    };
+
+
+    /**
+     * 参数设置
+     *
+     * @return
+     */
+    public void setParam() {
+        // 清空参数
+        mIat.setParameter(SpeechConstant.PARAMS, null);
+
+        // 设置听写引擎
+        mIat.setParameter(SpeechConstant.ENGINE_TYPE, mEngineType);
+        // 设置返回结果格式
+        mIat.setParameter(SpeechConstant.RESULT_TYPE, "json");
+
+        // 设置语言
+        mIat.setParameter(SpeechConstant.LANGUAGE, "zh_cn");
+        // 设置语言区域
+        mIat.setParameter(SpeechConstant.ACCENT, "mandarin");
+
+
+        // 设置语音前端点:静音超时时间，即用户多长时间不说话则当做超时处理
+        mIat.setParameter(SpeechConstant.VAD_BOS, "4000");
+
+        // 设置语音后端点:后端点静音检测时间，即用户停止说话多长时间内即认为不再输入， 自动停止录音
+        mIat.setParameter(SpeechConstant.VAD_EOS, "1000");
+
+        // 设置标点符号,设置为"0"返回结果无标点,设置为"1"返回结果有标点
+        mIat.setParameter(SpeechConstant.ASR_PTT, "1");
+
+        // 设置音频保存路径，保存音频格式支持pcm、wav，设置路径为sd卡请注意WRITE_EXTERNAL_STORAGE权限
+        // 注：AUDIO_FORMAT参数语记需要更新版本才能生效
+        mIat.setParameter(SpeechConstant.AUDIO_FORMAT,"wav");
+        mIat.setParameter(SpeechConstant.ASR_AUDIO_PATH, Environment.getExternalStorageDirectory()+"/msc/iat.wav");
+    }
+
+    /**
+     * 听写UI监听器
+     */
+    private RecognizerDialogListener mRecognizerDialogListener = new RecognizerDialogListener() {
+        public void onResult(RecognizerResult results, boolean isLast) {
+            printResult(results);
+        }
+
+        /**
+         * 识别回调错误.
+         */
+        public void onError(SpeechError error) {
+            mActivity.showText(error.getPlainDescription(true));
+        }
+
+    };
+
+    private void printResult(RecognizerResult results) {
+        String text = JsonParser.parseIatResult(results.getResultString());
+
+        String sn = null;
+        // 读取json结果中的sn字段
+        try {
+            JSONObject resultJson = new JSONObject(results.getResultString());
+            sn = resultJson.optString("sn");
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        //存起来
+        mIatResults.put(sn, text);
+
+        StringBuffer resultBuffer = new StringBuffer();
+        for (String key : mIatResults.keySet()) {
+            resultBuffer.append(mIatResults.get(key));
+        }
+        if(!StringUtils.isNullOrEmpty(resultBuffer.toString())){
+            et_find_music.setText(resultBuffer.toString());
+            et_find_music.setSelection(et_find_music.length());
+
+            iv_recognize_sound.setVisibility(View.GONE);
+            iv_clear_edit.setVisibility(View.VISIBLE);
+        }
+    }
+
+    /**
+     * 听写监听器。
+     */
+    private RecognizerListener mRecognizerListener = new RecognizerListener() {
+
+        @Override
+        public void onBeginOfSpeech() {
+            // 此回调表示：sdk内部录音机已经准备好了，用户可以开始语音输入
+            mActivity.showText("开始说话");
+        }
+
+        @Override
+        public void onError(SpeechError error) {
+            // Tips：
+            // 错误码：10118(您没有说话)，可能是录音机权限被禁，需要提示用户打开应用的录音权限。
+            // 如果使用本地功能（语记）需要提示用户开启语记的录音权限。
+            mActivity.showText(error.getPlainDescription(true));
+
+        }
+
+        @Override
+        public void onEndOfSpeech() {
+            // 此回调表示：检测到了语音的尾端点，已经进入识别过程，不再接受语音输入
+            mActivity.showText("结束说话");
+        }
+
+        @Override
+        public void onResult(RecognizerResult results, boolean isLast) {
+            Log.d(TAG, results.getResultString());
+            printResult(results);
+            if (isLast) {
+                // TODO 最后的结果
+            }
+        }
+
+        @Override
+        public void onVolumeChanged(int volume, byte[] data) {
+            mActivity.showText("当前正在说话，音量大小：" + volume);
+            Log.d(TAG, "返回音频数据："+data.length);
+        }
+
+        @Override
+        public void onEvent(int eventType, int arg1, int arg2, Bundle obj) {
+            // 以下代码用于获取与云端的会话id，当业务出错时将会话id提供给技术支持人员，可用于查询会话日志，定位出错原因
+            // 若使用本地能力，会话id为null
+            //	if (SpeechEvent.EVENT_SESSION_ID == eventType) {
+            //		String sid = obj.getString(SpeechEvent.KEY_EVENT_SESSION_ID);
+            //		Log.d(TAG, "session id =" + sid);
+            //	}
+        }
+    };
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        if( null != mIat ){
+            // 退出时释放连接
+            mIat.cancel();
+            mIat.destroy();
+        }
+    }
+
 
 }
