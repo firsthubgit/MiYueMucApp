@@ -146,6 +146,7 @@ public class SwitchBgFragment extends BaseSwipeBackFragment implements AdapterVi
     }
 
     private void getData() {
+        //测试1.2.1
         Bitmap bitmap = null;
         AssetManager am = getActivity().getAssets();
         try {
