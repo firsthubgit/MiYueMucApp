@@ -7,9 +7,9 @@
 也参考了一些其他app的设计，例如QQ音乐，素材多来自酷我音乐，希望使用的人都能听见音乐的美。
 
 目前的功能:</br>
-显示本地的音乐</br>
-显示歌词，读取的目录是本地Music/Lrc，仿QQ歌词功能</br>
-设置播放顺序</br>
+   显示本地的音乐</br>
+   显示歌词，读取的目录是本地Music/Lrc，仿QQ歌词功能</br>
+   设置播放顺序</br>
 
 
 采用MediaBrowserService写的，感谢一下Google提供的[Demo](https://github.com/googlesamples/android-UniversalMusicPlayer),
@@ -20,7 +20,6 @@
 <img src="https://github.com/firsthubgit/MiYueMucApp/blob/master/screenshot/1.png" width=320 height=569/>
 <img src="https://github.com/firsthubgit/MiYueMucApp/blob/master/screenshot/2.png" width=320 height=569/>
 <img src="https://github.com/firsthubgit/MiYueMucApp/blob/master/screenshot/3.png" width=320 height=569/>
-<img src="https://github.com/firsthubgit/MiYueMucApp/blob/master/screenshot/4.png" width=320 height=569/>
 <img src="https://github.com/firsthubgit/MiYueMucApp/blob/master/screenshot/5.png" width=320 height=569/>
 <img src="https://github.com/firsthubgit/MiYueMucApp/blob/master/screenshot/6.png" width=320 height=569/>
 <img src="https://github.com/firsthubgit/MiYueMucApp/blob/master/screenshot/7.png" width=320 height=569/>
