@@ -16,6 +16,7 @@
 但是这个demo有个bug，详见博客：http://blog.csdn.net/u010232308/article/details/72620942
 部分idea来自QQ音乐 酷我音乐
 
+
 效果图：</br>
 <img src="https://github.com/firsthubgit/MiYueMucApp/blob/master/screenshot/1.png" width=320 height=569/>
 <img src="https://github.com/firsthubgit/MiYueMucApp/blob/master/screenshot/2.png" width=320 height=569/>
