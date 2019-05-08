@@ -42,6 +42,7 @@
             android:layout_centerVertical="true"
             android:layout_marginRight="6dp"
             android:background="@drawable/ic_notification"
+            android:visibility="gone"
             />
         <ImageView
             android:id="@+id/iv_clear_edit"

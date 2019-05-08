@@ -35,7 +35,8 @@ public class HttpApi {
 
     private static final String TTPOD_LRC = "http://lp.music.ttpod.com/lrc/down?artist=歌手&title=歌曲名";
 
-    private static final String QQ_SEARCH_URL = "http://s.music.qq.com/fcgi-bin/music_search_new_platform?t=0&%20amp;n=10&aggr=1&cr=1&loginUin=0&format=json&inCharset=GB2312&outCharset=utf-8¬ice=0&platform=jqminiframe.json&needNewCode=0&p=页数&catZhida=0&remoteplace=sizer.newclient.next_song&w=周杰伦";
+//    private static final String QQ_SEARCH_URL = "http://s.music.qq.com/fcgi-bin/music_search_new_platform?t=0&%20amp;n=10&aggr=1&cr=1&loginUin=0&format=json&inCharset=GB2312&outCharset=utf-8¬ice=0&platform=jqminiframe.json&needNewCode=0&p=页数&catZhida=0&remoteplace=sizer.newclient.next_song&w=周杰伦";
+    private static final String QQ_SEARCH_URL = "https://c.y.qq.com/soso/fcgi-bin/client_search_cp?aggr=1&cr=1&flag_qc=0&p=页数&n=30&w=周杰伦";
 
 
     private static final String QQ_LRC_URL = "http://music.qq.com/miniportal/static/lyric/SONGID100/SONGID.xml";

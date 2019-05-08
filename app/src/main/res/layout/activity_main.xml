@@ -15,7 +15,6 @@
         >
     </include>
 
-
     <fragment
         android:id="@+id/frag_menu"
         android:name="com.miyue.ui.fragment.menu.MenuFragment"

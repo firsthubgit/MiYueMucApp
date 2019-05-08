@@ -152,7 +152,6 @@ public class SearchFragment extends BaseMediaFragment implements OnLineMusicAdap
 
         rl_search_histroy = (RelativeLayout) view.findViewById(R.id.rl_search_histroy);
         iv_recognize_sound = (ImageView) view.findViewById(R.id.iv_recognize_sound);
-        iv_recognize_sound.setVisibility(View.VISIBLE);
         if(mStList.size() == 0){
             rl_search_histroy.setVisibility(View.GONE);
         }else{

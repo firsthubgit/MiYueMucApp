@@ -16,13 +16,14 @@ import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.os.RemoteException;
 import android.support.annotation.NonNull;
+import android.support.v4.app.NotificationCompat;
+import android.support.v4.media.app.NotificationCompat.MediaStyle;
 import android.support.v4.app.NotificationManagerCompat;
 import android.support.v4.media.MediaDescriptionCompat;
 import android.support.v4.media.MediaMetadataCompat;
 import android.support.v4.media.session.MediaControllerCompat;
 import android.support.v4.media.session.MediaSessionCompat;
 import android.support.v4.media.session.PlaybackStateCompat;
-import android.support.v7.app.NotificationCompat;
 
 import com.miyue.R;
 import com.miyue.application.MiYueConstans;
@@ -290,7 +291,7 @@ public class MediaNotificationManager extends BroadcastReceiver {
         }
 
         notificationBuilder
-                .setStyle(new NotificationCompat.MediaStyle()
+                .setStyle(new MediaStyle()
                         .setShowActionsInCompactView(
                                 new int[]{playPauseButtonPosition})  // show only play/pause in compact view
                         .setMediaSession(mSessionToken))
