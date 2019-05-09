@@ -17,8 +17,10 @@ import com.miyue.utils.MusicUtils;
 import com.miyue.utils.StringUtils;
 import com.miyue.utils.UtilLog;
 
+import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.Reader;
 import java.util.ArrayList;
 
 
@@ -36,10 +38,10 @@ public class HttpApi {
     private static final String TTPOD_LRC = "http://lp.music.ttpod.com/lrc/down?artist=歌手&title=歌曲名";
 
 //    private static final String QQ_SEARCH_URL = "http://s.music.qq.com/fcgi-bin/music_search_new_platform?t=0&%20amp;n=10&aggr=1&cr=1&loginUin=0&format=json&inCharset=GB2312&outCharset=utf-8¬ice=0&platform=jqminiframe.json&needNewCode=0&p=页数&catZhida=0&remoteplace=sizer.newclient.next_song&w=周杰伦";
-    private static final String QQ_SEARCH_URL = "https://c.y.qq.com/soso/fcgi-bin/client_search_cp?aggr=1&cr=1&flag_qc=0&p=页数&n=30&w=周杰伦";
+    private static final String QQ_SEARCH_URL = "https://c.y.qq.com/soso/fcgi-bin/client_search_cp?aggr=1&cr=1&flag_qc=0&p=页数&n=20&w=周杰伦";
 
 
-    private static final String QQ_LRC_URL = "http://music.qq.com/miniportal/static/lyric/SONGID100/SONGID.xml";
+    private static final String QQ_LRC_URL = "https://c.y.qq.com/lyric/fcgi-bin/fcg_query_lyric_yqq.fcg?nobase64=0&musicid=SONGID&-=jsonp1&g_tk=857640282&hostUin=0&format=json&inCharset=utf8&outCharset=utf-8&notice=0&platform=yqq.json&needNewCode=0";
 
 
     /**在输入前判断用户时候输入全，强制歌曲名和歌手都不为空*/
@@ -65,13 +67,15 @@ public class HttpApi {
     public static SongsInfo<QQSong> getQQSongKeyword(String keyword, int page){
         NetManager manager = new NetManager();
 
-        String keywordURL = QQ_SEARCH_URL.replace("周杰伦", keyword).replace("页数", page + "");
+        String keywordURL = QQ_SEARCH_URL.replace("周杰伦", keyword)
+                .replace("页数", page + "");
         UtilLog.url("URL:" + keywordURL);
         try {
             String songJson = manager.run(keywordURL);
+            if(songJson.startsWith("callback")){
+                songJson = songJson.substring(9, songJson.length()-1);
+            }
             SongsInfo<QQSong> songsInfo = JsonParser.parseQQForSong(songJson);
-            ArrayList<QQSong> tempList = MusicUtils.dealQQsong(songsInfo);
-            songsInfo.setList(tempList);
             return songsInfo;
         } catch (IOException e) {
             e.printStackTrace();
@@ -81,13 +85,11 @@ public class HttpApi {
 
     public static String getQQLRC(String songId){
         NetManager manager = new NetManager();
-        String qqSongLRC = QQ_LRC_URL.replace("SONGID100", (Integer.parseInt(songId) % 100)+"")
-                .replace("SONGID",songId);
+        String qqSongLRC = QQ_LRC_URL.replace("SONGID",songId);
         UtilLog.e(TAG, qqSongLRC);
         try {
-            String lrcxml = manager.getGB2312(qqSongLRC);
-            String dest = new String(lrcxml.getBytes(), "UTF-8");
-            String lrc = XmlParser.getQQLRC(dest);
+            String lrcData = manager.getQQLRC(qqSongLRC);
+            String lrc = JsonParser.parseJsonForQQLyric(lrcData);
             UtilLog.e(TAG, "QQ歌词：" + lrc);
             return lrc;
         } catch (IOException e) {
@@ -121,6 +123,23 @@ public class HttpApi {
         } catch (IOException e) {
             e.printStackTrace();
             return 0;//下载失败
+        }
+    }
+
+    public static String downKey(String url){
+        NetManager manager = new NetManager();
+        try {
+            Reader reader = manager.getReaderStream(url);
+            BufferedReader read = new BufferedReader(reader);
+            String keyCuan = "";
+            String line = "";
+            while((line = read.readLine()) != null){
+                keyCuan += line;
+            }
+            return keyCuan;
+        } catch (IOException e) {
+            e.printStackTrace();
+            return "";
         }
     }
 }

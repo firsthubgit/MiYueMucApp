@@ -72,20 +72,10 @@ public class OnLineMusicAdapter extends BaseAdapter {
         }
         holder.tv_music_order.setVisibility(View.GONE);
         QQSong song = songList.get(position);
-        String[] songinfo = song.getF().split("\\|");
 
         holder.tv_music_name.setText(song.getFsong());
-        if(songinfo.length >= 6){
-            String album = null;
-            if(songinfo[5].contains("&amp;")){
-                album = StringUtils.unicodeToKoreaForAlbum(songinfo[5]);
-            } else {
-                album = songinfo[5];
-            }
-            holder.tv_artist.setText(song.getFsinger() + "·" + album);
-        } else {
-            holder.tv_artist.setText(song.getFsinger());
-        }
+        holder.tv_artist.setText(song.getFsinger() + "·" + song.getAlbumname());
+
 
         if(mDrawable == null){
             mDrawable = mContext.getResources().getDrawable(R.drawable.lrc_search);

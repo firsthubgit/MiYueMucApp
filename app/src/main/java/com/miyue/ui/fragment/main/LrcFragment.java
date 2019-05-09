@@ -109,8 +109,7 @@ public class LrcFragment extends BaseMediaFragment implements PlayFragment.SeekB
             mTitle = metaBundle.getString(MediaMetadataCompat.METADATA_KEY_TITLE);
             mArtist = metaBundle.getString(MediaMetadataCompat.METADATA_KEY_ARTIST);
             mMediaID = metaBundle.getString(MediaMetadataCompat.METADATA_KEY_MEDIA_ID);
-            if(!FileUtils.isLRCFileExists(FileUtils.getLrcName(mTitle, mArtist))
-                    && mMediaID.split(":").length == 1){//从搜索列表过来的只有id,其他有分号
+            if(!FileUtils.isLRCFileExists(FileUtils.getLrcName(mTitle, mArtist))){//从搜索列表过来的只有id,其他有分号
                 getQueryQQLRCTask(mMediaID);
             } else {
                 updateLrc(FileUtils.getLrcName(mTitle, mArtist));

@@ -1,5 +1,7 @@
 package com.miyue.bean;
 
+import java.util.List;
+
 /**
 *
 * @author ZZD
@@ -8,14 +10,62 @@ package com.miyue.bean;
 
 public class QQSong {
 
-    private String f;
+
+    private String songid;
     /**周杰伦*/
-    private String fsinger;
+//    private String fsinger;
     /**告白气球*/
-    private String fsong;
+    private String songname;
     /**搜索歌词*/
     private String lyric;
     private String lyric_hilight;
+
+    //时间长度
+    private String interval;
+    //专辑名称
+    private String albumname;
+
+    private List<Singer> singer;
+
+    private String songmid;
+
+    private String albummid;
+
+
+    public String getAlbummid() {
+        return albummid;
+    }
+
+    public void setAlbummid(String albummid) {
+        this.albummid = albummid;
+    }
+
+
+
+    public void setSongmid(String songmid) {
+        this.songmid = songmid;
+    }
+
+    public String getSongmid() {
+        return songmid;
+    }
+
+
+    public void setInterval(String interval) {
+        this.interval = interval;
+    }
+
+    public void setAlbumname(String albumname) {
+        this.albumname = albumname;
+    }
+
+    public String getInterval() {
+        return interval;
+    }
+
+    public String getAlbumname() {
+        return albumname;
+    }
 
 
     public String getLyric() {
@@ -34,37 +84,35 @@ public class QQSong {
         this.lyric_hilight = lyric_hilight;
     }
 
-
-    public String getF() {
-        return f;
-    }
-
-    public void setF(String f) {
-        this.f = f;
-    }
-
     public String getFsinger() {
-        return fsinger;
+        String singerName = "";
+        if(singer !=null && singer.size()>0){
+            singerName =  singer.get(0).name;
+            for(int i=1; i<singer.size(); i++){
+                singerName += ("|" + singer.get(i).name);
+            }
+        }
+        return singerName;
     }
 
-    public void setFsinger(String fsinger) {
-        this.fsinger = fsinger;
+    public void setFsinger(List<Singer> singer) {
+        this.singer = singer;
     }
 
     public String getFsong() {
-        return fsong;
+        return songname;
     }
 
-    public void setFsong(String fsong) {
-        this.fsong = fsong;
+    public void setSongname(String songname) {
+        this.songname = songname;
     }
 
-    @Override
-    public String toString() {
-        return "Song{" +
-                "f='" + f + '\'' +
-                ", fsinger='" + fsinger + '\'' +
-                ", fsong='" + fsong + '\'' +
-                '}';
+    public String getSongid() {
+        return songid;
     }
+
+    public void setSongid(String songid) {
+        this.songid = songid;
+    }
+
 }

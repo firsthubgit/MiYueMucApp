@@ -27,25 +27,6 @@ public class StringUtils {
         }
     }
 
-    /**
-     * 获取播放链接
-     * */
-    public static String getPlayUrl(String songF){
-        if(songF.contains("@@")){
-            String[] song = songF.split("@@");
-            for(String playUrl : song){
-                if(playUrl.startsWith("http")){
-                    //播放连接
-                   return playUrl;
-                }
-            }
-            return  null;
-        } else {
-            String[] song = songF.split("\\|");
-            String songid = song[0];
-            return MiYueConstans.QQ_PLAY_URL.replace("SONGID", songid);
-        }
-    }
 
     /**
      * unicode 转字韩文

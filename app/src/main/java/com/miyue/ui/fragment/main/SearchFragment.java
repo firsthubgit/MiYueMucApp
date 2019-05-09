@@ -212,7 +212,7 @@ public class SearchFragment extends BaseMediaFragment implements OnLineMusicAdap
         iv_clear_edit.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                iv_recognize_sound.setVisibility(View.VISIBLE);
+                iv_recognize_sound.setVisibility(View.GONE);
                 iv_clear_edit.setVisibility(View.GONE);
                 et_find_music.setText("");
                 mCurrentPage = 1;
@@ -427,7 +427,9 @@ public class SearchFragment extends BaseMediaFragment implements OnLineMusicAdap
             if(FileUtils.isMp3FileExists(mp3Name)){
                 return -1;
             }
-            String playUrl = StringUtils.getPlayUrl(params[0].getF());
+            String playUrl = MiYueConstans.QQ_PLAY_URL.replace("MEDIAID", mQQSong.getSongmid())
+                    .replace("AK", MiYueConstans.KEY);
+            UtilLog.e("kkk", playUrl);
             return HttpApi.downMusic(playUrl, new String[]{params[0].getFsong(), params[0].getFsinger()});
         }
 

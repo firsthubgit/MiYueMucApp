@@ -19,6 +19,8 @@ public class MiYueConstans {
      /**循环播放*/
      public static final int MODE_LOOPER = 3;
 
+     public static String KEY = "";
+
      public static final String ABSOLUTE_PATH = Environment.getExternalStorageDirectory().getAbsolutePath();
 
      public static final String LRC_PATH = ABSOLUTE_PATH + "/Music/Lrc/";
@@ -27,9 +29,9 @@ public class MiYueConstans {
 
      public static final String MUSIC_DOWN_PATH = ABSOLUTE_PATH+ "/Music/Download/";
 
-     public static final String QQ_PIC_URL = "http://imgcache.qq.com/music/photo/album_300/IMAGEID100/300_albumpic_IMAGEID_0.jpg";
+     public static final String QQ_PIC_URL = "https://y.gtimg.cn/music/photo_new/T002R300x300M000专辑mid.jpg?max_age=2592000";
 
-     public static final String QQ_PLAY_URL = "http://ws.stream.qqmusic.qq.com/SONGID.m4a?fromtag=46";
+     public static final String QQ_PLAY_URL = "http://dl.stream.qqmusic.qq.com/C400MEDIAID.m4a?vkey=AK&guid=joe&uin=0&fromtag=8";
 
 
 

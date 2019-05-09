@@ -30,55 +30,23 @@ public class MusicUtils {
      * */
     public static Bundle creSongBundle(QQSong qqSong, boolean isDown){
         Bundle bundle = new Bundle();
-        String f = qqSong.getF();
-        if(f.contains("@@")){
-            String[] song = f.split("@@");
-            for(String playUrl : song){
-                if(playUrl.startsWith("http")){
-                    //播放连接
-                    bundle.putString(MusicProvider.MEDIA_NET_PLAY_URL, playUrl);
-                    break;
-                }
-            }
-            //songid
-            bundle.putString(MediaMetadataCompat.METADATA_KEY_MEDIA_ID, song[0]);
-            //歌曲名字
-            bundle.putString(MediaMetadataCompat.METADATA_KEY_TITLE, qqSong.getFsong());
-            //歌手
-            bundle.putString(MediaMetadataCompat.METADATA_KEY_ARTIST, qqSong.getFsinger());
-            //时长
-            bundle.putLong(MediaMetadataCompat.METADATA_KEY_DURATION, Long.parseLong(song[7])*1000);
-            bundle.putString(MediaMetadataCompat.METADATA_KEY_ALBUM_ART_URI, "");
-            bundle.putString(MediaMetadataCompat.METADATA_KEY_ALBUM, "");
 
-        } else {
-            String[] song = f.split("\\|");
-            String songid = song[0];
-            String uri = MiYueConstans.QQ_PLAY_URL.replace("SONGID", songid);
-            String pic_url = MiYueConstans.QQ_PIC_URL.replace("IMAGEID100", (Integer.parseInt(song[4])%100) + "")
-                    .replace("IMAGEID", song[4]);
-            //songid
-            bundle.putString(MediaMetadataCompat.METADATA_KEY_MEDIA_ID, song[0]);
-            //播放连接
-            bundle.putString(MusicProvider.MEDIA_NET_PLAY_URL, uri);
-
-            String album = "";
-            if(song.length >= 6){
-                if(song[5].contains("&amp;")){
-                    album = StringUtils.unicodeToKoreaForAlbum(song[5]);
-                } else {
-                    album = song[5];
-                }
-            }
-            bundle.putString(MediaMetadataCompat.METADATA_KEY_ALBUM, album);
-            //歌手
-            bundle.putString(MediaMetadataCompat.METADATA_KEY_ARTIST, qqSong.getFsinger());
-            //时长
-            bundle.putLong(MediaMetadataCompat.METADATA_KEY_DURATION, Long.parseLong(song[7])*1000);
-            bundle.putString(MediaMetadataCompat.METADATA_KEY_ALBUM_ART_URI, pic_url);
-            //歌曲名字
-            bundle.putString(MediaMetadataCompat.METADATA_KEY_TITLE, qqSong.getFsong());
-        }
+        String playUrl = MiYueConstans.QQ_PLAY_URL.replace("MEDIAID", qqSong.getSongmid())
+                .replace("AK", MiYueConstans.KEY);
+        bundle.putString(MusicProvider.MEDIA_NET_PLAY_URL, playUrl);
+        //songid
+        bundle.putString(MediaMetadataCompat.METADATA_KEY_MEDIA_ID, qqSong.getSongid());
+        //歌曲名字
+        bundle.putString(MediaMetadataCompat.METADATA_KEY_TITLE, qqSong.getFsong());
+        //歌手
+        bundle.putString(MediaMetadataCompat.METADATA_KEY_ARTIST, qqSong.getFsinger());
+        //时长
+        bundle.putLong(MediaMetadataCompat.METADATA_KEY_DURATION, Long.parseLong(qqSong.getInterval())*1000);
+        //图片地址
+        String pic_url = MiYueConstans.QQ_PIC_URL.replace("专辑mid", qqSong.getAlbummid());
+        bundle.putString(MediaMetadataCompat.METADATA_KEY_ALBUM_ART_URI, pic_url);
+        //专辑名称
+        bundle.putString(MediaMetadataCompat.METADATA_KEY_ALBUM, qqSong.getAlbumname());
         if(isDown){
             String fileName = FileUtils.getMp3Name(qqSong.getFsong(), qqSong.getFsinger());
             bundle.putString(MediaMetadataCompat.METADATA_KEY_MEDIA_URI,
@@ -196,21 +164,4 @@ public class MusicUtils {
                 .build();
     }
 
-
-    public static ArrayList<QQSong> dealQQsong(SongsInfo<QQSong> songsInfo){
-        ArrayList<QQSong> qqSongs = new ArrayList<>();
-        ArrayList<QQSong> qqlist = songsInfo.getList();
-        for(QQSong song : qqlist){
-            if(song.getFsong().contains("&#")){
-                String songName = StringUtils.unicode2Korea(song.getFsong());
-                song.setFsong(songName);
-            }
-            if(song.getFsinger().contains("&#")){
-                String singer = StringUtils.unicode2Korea(song.getFsinger());
-                song.setFsinger(singer);
-            }
-            qqSongs.add(song);
-        }
-        return qqSongs;
-    }
 }

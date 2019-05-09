@@ -1,11 +1,15 @@
 package com.miyue.http;
 
+import android.util.Base64;
+
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.miyue.bean.QQSong;
+import com.miyue.bean.Singer;
 import com.miyue.bean.SongsInfo;
 import com.miyue.bean.TrackLrc;
+import com.miyue.utils.Base64Util;
 import com.miyue.utils.UtilLog;
 
 import java.util.ArrayList;
@@ -35,6 +39,23 @@ public class JsonParser {
         return result;
     }
 
+    public static String parseJsonForQQLyric(String responseStr){
+        try {
+            JSONObject object = JSON.parseObject(responseStr);
+            String data = object.getString("lyric");
+            if(data == null){
+                return null;
+            }
+            byte[] bytelrc = Base64.decode(data, Base64.NO_WRAP);
+            String lrc = new String(bytelrc, "UTF-8");
+            return lrc;
+        }catch(Exception e){
+            e.printStackTrace();
+            return null;
+        }
+
+    }
+
     public static String  parseJsonForLyric(String responseStr){
         try {
             JSONObject object = JSON.parseObject(responseStr);
@@ -62,6 +83,12 @@ public class JsonParser {
                 if(songs != null){
                     JSONArray jsonArray = songs.getJSONArray("list");
                     result = JSON.parseArray(jsonArray.toJSONString(), QQSong.class);
+                    for(int i=0; i<jsonArray.size(); i++){
+                        JSONObject  song = (JSONObject) jsonArray.get(i);
+                        JSONArray singers = song.getJSONArray("singer");
+                        List<Singer> singerBeans = JSON.parseArray(singers.toJSONString(), Singer.class);
+                        result.get(i).setFsinger(singerBeans);
+                    }
                     songsInfo.setList((ArrayList<QQSong>) result);
                 }
             }

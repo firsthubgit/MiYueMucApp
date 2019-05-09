@@ -4,6 +4,7 @@ import android.text.TextUtils;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.Reader;
 import java.util.concurrent.TimeUnit;
 
 import okhttp3.OkHttpClient;
@@ -52,6 +53,20 @@ public class NetManager {
         return info;
     }
 
+    public String getQQLRC(String url) throws IOException {
+        Request request = new Request.Builder()
+                .url(url)
+                .removeHeader("User-Agent")
+                .removeHeader("Referer")
+                .addHeader("User-Agent",
+                        "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_13_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/73.0.3683.86 Safari/537.36")
+                .addHeader("Referer", "https://y.qq.com/portal/player.html")
+                .build();
+        Response response = client.newCall(request).execute();
+        String lrcData = response.body().string();
+        return lrcData;
+    }
+
     public InputStream getStream(String url) throws IOException {
         Request request = new Request.Builder()
                 .url(url)
@@ -59,5 +74,15 @@ public class NetManager {
         Response response = client.newCall(request).execute();
         InputStream is = response.body().byteStream();
         return is;
+    }
+
+    public Reader getReaderStream(String url) throws IOException{
+        Request request = new Request.Builder()
+                .url(url).removeHeader("User-Agent").addHeader("User-Agent",
+                        "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_13_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/73.0.3683.86 Safari/537.36")
+                .build();
+        Response response = client.newCall(request).execute();
+        Reader reader = response.body().charStream();
+        return reader;
     }
 }
