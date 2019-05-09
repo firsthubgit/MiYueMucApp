@@ -5,7 +5,6 @@ import android.app.Activity;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
-import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
@@ -19,25 +18,14 @@ import android.view.animation.Animation;
 import android.widget.Button;
 import android.widget.RelativeLayout;
 
-import com.alibaba.fastjson.JSON;
-import com.alibaba.fastjson.JSONArray;
-import com.alibaba.fastjson.JSONObject;
-import com.miyue.R;
-import com.miyue.application.MiYueConstans;
-import com.miyue.bean.KeyItem;
-import com.miyue.bean.QQSong;
-import com.miyue.bean.TrackLrc;
-import com.miyue.http.HttpApi;
-import com.miyue.http.NetManager;
-import com.miyue.service.PlayerService;
-import com.miyue.service.playback.MusicProvider;
-import com.miyue.utils.FileUtils;
-import com.miyue.utils.MusicUtils;
-import com.miyue.utils.UtilLog;
 
-import java.io.IOException;
+import com.miyue.R;
+
+import com.miyue.http.Downkey;
+import com.miyue.service.PlayerService;
+
+
 import java.lang.ref.WeakReference;
-import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -99,32 +87,6 @@ public class SplashActivity extends Activity {
 
     private void setKey() {
         new Downkey().execute(key_url);
-    }
-
-    public class Downkey extends AsyncTask<String, Void, String> {
-
-        private String url;
-
-        @Override
-        protected String doInBackground(String... params) {
-            url = params[0];
-            return HttpApi.downKey(url);
-        }
-
-        @Override
-        protected void onPostExecute(String keyString) {
-            super.onPostExecute(keyString);
-            UtilLog.e("kkk", keyString);
-            JSONObject object = JSON.parseObject(keyString);
-            JSONObject data = (JSONObject) object.get("data");
-            JSONArray jsonArray = data.getJSONArray("items");
-
-            List<KeyItem> result = null;
-            result = JSON.parseArray(jsonArray.toJSONString(), KeyItem.class);
-            if(result != null && result.size()>0){
-                MiYueConstans.KEY = result.get(0).getVkey();
-            }
-        }
     }
 
 

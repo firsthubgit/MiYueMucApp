@@ -9,7 +9,6 @@ import com.miyue.bean.QQSong;
 import com.miyue.bean.Singer;
 import com.miyue.bean.SongsInfo;
 import com.miyue.bean.TrackLrc;
-import com.miyue.utils.Base64Util;
 import com.miyue.utils.StringUtils;
 import com.miyue.utils.UtilLog;
 
@@ -50,7 +49,7 @@ public class JsonParser {
                 return null;
             }
             //正则替换Unicode编码为ASCII码
-            Pattern r = Pattern.compile("\\&\\#\\d{2};");
+            Pattern r = Pattern.compile("\\&\\#\\d+?;");
             Matcher matcher  = r.matcher(data);
             StringBuffer sb=new StringBuffer();
             boolean result = matcher.find();

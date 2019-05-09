@@ -74,7 +74,11 @@ public class OnLineMusicAdapter extends BaseAdapter {
         QQSong song = songList.get(position);
 
         holder.tv_music_name.setText(song.getFsong());
-        holder.tv_artist.setText(song.getFsinger() + "·" + song.getAlbumname());
+
+        holder.tv_artist.setText(song.getFsinger());
+        if(!StringUtils.isNullOrEmpty(song.getAlbumname())){
+            holder.tv_artist.append("·" + song.getAlbumname());
+        }
 
 
         if(mDrawable == null){

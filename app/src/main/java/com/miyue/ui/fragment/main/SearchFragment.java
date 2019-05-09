@@ -44,6 +44,7 @@ import com.miyue.bean.QQSong;
 import com.miyue.bean.SongsInfo;
 import com.miyue.common.base.BaseActivity;
 import com.miyue.common.base.BaseMediaFragment;
+import com.miyue.http.Downkey;
 import com.miyue.http.HttpApi;
 import com.miyue.service.playback.MusicProvider;
 import com.miyue.ui.adapter.OnLineMusicAdapter;
@@ -110,6 +111,8 @@ public class SearchFragment extends BaseMediaFragment implements OnLineMusicAdap
     // 用HashMap存储听写结果
     private HashMap<String, String> mIatResults = new LinkedHashMap<String, String>();
 
+
+    public String key_url = "http://c.y.qq.com/base/fcgi-bin/fcg_music_express_mobile3.fcg?g_tk=556936094&loginUin=0&hostUin=0&format=json&inCharset=utf8&outCharset=utf-8&notice=0&platform=yqq&needNewCode=0&cid=205361747&uin=0&songmid=003a1tne1nSz1Y&filename=C400003a1tne1nSz1Y.m4a&guid=joe";
 
     @Override
     public void onAttach(Context context) {
@@ -242,6 +245,9 @@ public class SearchFragment extends BaseMediaFragment implements OnLineMusicAdap
                     mKeyword = et_find_music.getText().toString().trim();
                     if(StringUtils.isNullOrEmpty(mKeyword)){
                         return false;
+                    }
+                    if(StringUtils.isNullOrEmpty(MiYueConstans.KEY)){
+                        new Downkey().execute(key_url);
                     }
                     doSearchKeyword(mKeyword);
                 }
