@@ -82,4 +82,11 @@ public class StringUtils {
         Matcher m = p.matcher(str);
         return m.replaceAll("").trim();
     }
+
+
+    public static char unicode2ASCII(String unicode) {
+        String code = unicode.substring(2, unicode.length()-1);
+        int ma = Integer.parseInt(code);
+        return (char)ma;
+    }
 }

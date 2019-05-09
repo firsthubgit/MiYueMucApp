@@ -41,7 +41,7 @@ public class HttpApi {
     private static final String QQ_SEARCH_URL = "https://c.y.qq.com/soso/fcgi-bin/client_search_cp?aggr=1&cr=1&flag_qc=0&p=页数&n=20&w=周杰伦";
 
 
-    private static final String QQ_LRC_URL = "https://c.y.qq.com/lyric/fcgi-bin/fcg_query_lyric_yqq.fcg?nobase64=0&musicid=SONGID&-=jsonp1&g_tk=857640282&hostUin=0&format=json&inCharset=utf8&outCharset=utf-8&notice=0&platform=yqq.json&needNewCode=0";
+    private static final String QQ_LRC_URL = "https://c.y.qq.com/lyric/fcgi-bin/fcg_query_lyric_yqq.fcg?nobase64=1&musicid=SONGID&-=jsonp1&g_tk=857640282&hostUin=0&format=json&inCharset=utf8&outCharset=utf-8&notice=0&platform=yqq.json&needNewCode=0";
 
 
     /**在输入前判断用户时候输入全，强制歌曲名和歌手都不为空*/
