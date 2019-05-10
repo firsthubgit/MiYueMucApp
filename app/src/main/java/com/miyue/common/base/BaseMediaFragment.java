@@ -100,7 +100,9 @@ public abstract class BaseMediaFragment extends BaseFragment {
     }
 
     protected void registBaseCallback(){
-        mMediaControllerCompat.registerCallback(mMediaControllerCallback);
+        if(mMediaControllerCompat != null) {
+            mMediaControllerCompat.registerCallback(mMediaControllerCallback);
+        }
     }
 
     public abstract void onPlaybackStateChangedForClien(@NonNull PlaybackStateCompat state);

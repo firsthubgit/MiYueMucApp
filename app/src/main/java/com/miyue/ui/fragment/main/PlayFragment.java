@@ -118,7 +118,9 @@ public class PlayFragment extends BaseMediaFragment {
             @Override
             public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
                 tv_music_start_time.setText(DateUtils.formatElapsedTime(progress / 1000));
-                mSeekBarChangeListener.onSeekBarChanged(progress, fromUser);
+                if(mSeekBarChangeListener != null){
+                    mSeekBarChangeListener.onSeekBarChanged(progress, fromUser);
+                }
             }
 
             @Override
