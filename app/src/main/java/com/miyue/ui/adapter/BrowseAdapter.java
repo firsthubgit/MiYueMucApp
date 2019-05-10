@@ -84,18 +84,19 @@ public class BrowseAdapter extends BaseAdapter {
             holder.tv_artist = (TextView) convertView.findViewById(R.id.tv_music_singer);
             holder.iv_list_icon = (ImageView) convertView.findViewById(R.id.iv_list_icon);
 
-            holder.iv_list_icon.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    listener.onMoreClick(description.getMediaId());
-                }
-            });
             convertView.setTag(holder);
         } else {
             holder = (Holder) convertView.getTag();
             cachedState = (Integer) convertView.getTag(R.id.tag_mediaitem_state_cache);
         }
 
+        holder.iv_list_icon.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                MediaBrowserCompat.MediaItem item = getItem(position);
+                listener.onMoreClick(item.getMediaId());
+            }
+        });
 
 
 

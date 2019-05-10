@@ -26,6 +26,7 @@ import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.greendao.DBHelper;
 import com.greendao.SearchHis;
@@ -425,6 +426,12 @@ public class SearchFragment extends BaseMediaFragment implements OnLineMusicAdap
     public class DownMusicTask extends AsyncTask<QQSong, Void, Integer>{
 
         private QQSong mQQSong;
+
+        @Override
+        protected void onPreExecute() {
+            super.onPreExecute();
+            Toast.makeText(getActivity(), "开始下载", Toast.LENGTH_SHORT).show();
+        }
 
         @Override
         protected Integer doInBackground(QQSong... params) {
