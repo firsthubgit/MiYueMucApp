@@ -178,7 +178,7 @@ public class PlayFragment extends BaseMediaFragment {
                     }
                     break;
                 case R.id.iv_play_menu:
-                    mActivity.showText("敬请期待");
+                    mActivity.showText("不知道做什么功能");
                     break;
             }
         }

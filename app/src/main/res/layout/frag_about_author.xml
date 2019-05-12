@@ -52,31 +52,6 @@
                 android:layout_marginLeft="10dp"
                 android:text="@string/intruduce"/>
 
-
-            <TextView
-                style="@style/TextColorWhite"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginLeft="10dp"
-                android:layout_marginTop="14dp"
-                android:text="@string/contact"/>
-
-
-            <TextView
-                style="@style/TextColorWhite"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginLeft="10dp"
-                android:layout_marginTop="14dp"
-                android:text="@string/qqnumber"/>
-
-            <TextView
-                style="@style/TextColorWhite"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginLeft="10dp"
-                android:layout_marginTop="10dp"
-                android:text="@string/mailnum"/>
         </LinearLayout>
 
     </RelativeLayout>

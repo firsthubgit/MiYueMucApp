@@ -1,6 +1,7 @@
 package com.miyue.common.base;
 
 import android.content.ComponentName;
+import android.content.Intent;
 import android.os.Bundle;
 import android.os.RemoteException;
 import android.support.annotation.Nullable;
@@ -56,7 +57,27 @@ public class BaseActivity extends AppCompatActivity {
         mMediaBrowser = new MediaBrowserCompat(this,
                 new ComponentName(this, PlayerService.class), mConnectionCallback, null);
         mMediaBrowser.connect();
+
+        if (savedInstanceState !=null){
+            int app_status  = savedInstanceState.getInt("app_status",-1);
+            if (app_status ==9999){
+                Intent intent = new Intent(Intent.ACTION_MAIN);
+                intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK|Intent.FLAG_ACTIVITY_CLEAR_TASK);
+                intent.addCategory(Intent.CATEGORY_LAUNCHER);
+                ComponentName cn = new ComponentName("com.miyue", "com.miyue.ui.activity.SplashActivity");
+                intent.setComponent(cn);
+                startActivity(intent);
+                finish();
+            }
+        }
     }
+
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        outState.putInt("app_status",9999);
+        super.onSaveInstanceState(outState);
+    }
+
 
     @Override
     protected void onStart() {

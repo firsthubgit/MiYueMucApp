@@ -16,16 +16,16 @@
 
 
     <string name="about">关于</string>
-    <string name="statement">声明：音乐版权归QQ音乐，本App没有任何商业用途</string>
+    <string name="statement">声明：音乐均来自网络，本App没有任何商业用途，如有侵权请告知</string>
     <string name="version">V1.0.0</string>
     <string name="intruduce">所有音乐下载缓存目录在Music/路径下</string>
     <string name="contact">联系方式：</string>
-    <string name="qqnumber">QQ:1280209233</string>
-    <string name="mailnum">邮箱:nihaoweilai110@163.com</string>
+    <string name="qqnumber"></string>
+    <string name="mailnum">邮</string>
 
 
 
     <string name="unknown">未知</string>
-    <string name="todo_toast">该功能v2版本上线</string>
+    <string name="todo_toast">干啥</string>
 
 </resources>

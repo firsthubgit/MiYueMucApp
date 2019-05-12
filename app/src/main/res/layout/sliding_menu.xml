@@ -44,10 +44,12 @@
                 style="@style/SlidingMenu.TextView.ItemTitle"
                 android:layout_width="fill_parent"
                 android:drawableLeft="@mipmap/icon_search_dark"
-                android:text="扫描歌曲" />
+                android:text="扫描歌曲"
+                android:visibility="gone"/>
 
 
-            <View style="@style/SlidingMenu.View.SplitLine" />
+            <View style="@style/SlidingMenu.View.SplitLine"
+                android:visibility="gone"/>
 
             <TextView
                 android:id="@+id/tv_menu_background"
@@ -63,9 +65,11 @@
                 style="@style/SlidingMenu.TextView.ItemTitle"
                 android:layout_width="fill_parent"
                 android:drawableLeft="@mipmap/icon_sleep_mode"
-                android:text="睡眠" />
+                android:text="睡眠"
+                android:visibility="gone"/>
 
-            <View style="@style/SlidingMenu.View.SplitLine" />
+            <View style="@style/SlidingMenu.View.SplitLine"
+                android:visibility="gone"/>
 
             <TextView
                 android:id="@+id/tv_menu_preference"
@@ -78,9 +82,11 @@
                 android:paddingLeft="15.0dip"
                 android:text="设置"
                 android:textColor="@android:color/white"
-                android:textSize="18.0sp" />
+                android:textSize="18.0sp"
+                android:visibility="gone"/>
 
-            <View style="@style/SlidingMenu.View.SplitLine" />
+            <View style="@style/SlidingMenu.View.SplitLine"
+                android:visibility="gone"/>
 
             <TextView
                 android:id="@+id/tv_menu_about"
