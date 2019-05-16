@@ -62,7 +62,7 @@ public class JsonParser {
             //也可能转换QQ音乐Base64后歌词
 //            byte[] bytelrc = Base64.decode(data, Base64.NO_WRAP);
 //            String lrc = new String(bytelrc, "UTF-8");
-            return sb.toString();
+            return sb.toString().replaceAll("&apos;", "'");
         }catch(Exception e){
             e.printStackTrace();
             return null;

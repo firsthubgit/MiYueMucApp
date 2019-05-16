@@ -14,10 +14,13 @@ import android.widget.TextView;
 
 import com.miyue.R;
 import com.miyue.application.MiYueConstans;
+import com.miyue.bean.QQSong;
+import com.miyue.bean.SongsInfo;
 import com.miyue.common.base.BaseMediaFragment;
 import com.miyue.bean.LrcRow;
 import com.miyue.http.HttpApi;
 import com.miyue.utils.FileUtils;
+import com.miyue.utils.LrcParseUitls;
 import com.miyue.utils.NetWorkUtils;
 import com.miyue.utils.StringUtils;
 import com.miyue.widgets.LrcView;
@@ -39,12 +42,11 @@ public class LrcFragment extends BaseMediaFragment implements PlayFragment.SeekB
     private String mArtist;
     private String mMediaID;
 
-    private QureyLRCTask mQureyLRCTask;
-
     private QueryLRCFromQQ mQueryLRCFromQQ;
     /**当前歌曲查找歌词，第一次点击*/
     private boolean isFirstClick = true;
 
+    private FeatchQQSongTask mFeatchQQSongTask;
 
     @Nullable
     @Override
@@ -71,7 +73,7 @@ public class LrcFragment extends BaseMediaFragment implements PlayFragment.SeekB
                     return;
                 }
                 if(isFirstClick){
-                    getQueryLrcTask();
+
                 } else {
                     mActivity.showText("没有歌词!\n再戳，再戳我就自爆!!!");
                 }
@@ -95,8 +97,22 @@ public class LrcFragment extends BaseMediaFragment implements PlayFragment.SeekB
         }
     }
 
+    public void udpateLrcFromLrc(String lrc){
+        List<LrcRow> list = LrcParseUitls.getIstance().getLrcRows(lrc);
+        if (list != null && list.size() > 0) {
+            tv_down_lrc.setVisibility(View.GONE);
+            mLrc_view.setLrcRows(list);
+        } else {
+            tv_down_lrc.setVisibility(View.VISIBLE);
+            mLrc_view.reset();
+        }
+    }
 
-/*****************************************************************************************/
+
+
+
+
+    /*****************************************************************************************/
     @Override
     public void onPlaybackStateChangedForClien(@NonNull PlaybackStateCompat state) {
     }
@@ -112,8 +128,10 @@ public class LrcFragment extends BaseMediaFragment implements PlayFragment.SeekB
             mLrc_view.reset();
             if(!FileUtils.isLRCFileExists(FileUtils.getLrcName(mTitle, mArtist))){
                 //从搜索列表过来的只有id,其他有分号
-                String[] args = mMediaID.split(":");
-                getQueryQQLRCTask(args.length>1? args[1]:args[0]);
+//                String[] args = mMediaID.split(":");
+//                getQueryQQLRCTask(args.length>1? args[1]:args[0]);
+                String  searchKey = mTitle + " " + mArtist;
+                getQQSongTask(searchKey);
             } else {
                 updateLrc(FileUtils.getLrcName(mTitle, mArtist));
             }
@@ -128,53 +146,51 @@ public class LrcFragment extends BaseMediaFragment implements PlayFragment.SeekB
     public void onSeekBarChanged(int progress, boolean fromUser) {
         mLrc_view.seekTo(progress, true, fromUser);
     }
+////////////////////////////////////////////////////////////////////////////////////
 
-    /**从天天动听音乐获取歌词*/
-    public void getQueryLrcTask(){
+    private void getQQSongTask(String keyword){
         if(!NetWorkUtils.isConnected(mActivity)){
-            mActivity.showText("哎哟，你没联网啊！");
+            mActivity.showText("你没有联网呢！");
             return;
         }
-        if (mQureyLRCTask != null && (mQureyLRCTask.getStatus().equals(AsyncTask.Status.RUNNING)
-                || mQureyLRCTask.getStatus().equals(AsyncTask.Status.PENDING))) {
-            mQureyLRCTask.cancel(true);
+        if (mFeatchQQSongTask != null && (mFeatchQQSongTask.getStatus().equals(AsyncTask.Status.RUNNING)
+                || mFeatchQQSongTask.getStatus().equals(AsyncTask.Status.PENDING))) {
+            mFeatchQQSongTask.cancel(true);
         }
-        mQureyLRCTask = new QureyLRCTask();
-        mQureyLRCTask.execute(mTitle, mArtist);
+        mFeatchQQSongTask = new FeatchQQSongTask();
+        mFeatchQQSongTask.execute(keyword);
     }
 
-    /**从天天动听音乐获取歌词*/
-    public class QureyLRCTask extends AsyncTask<String, Void, String>{
-        private String mtitle;
-        private String martist;
+
+    /**获取QQ歌曲列表*/
+    private class FeatchQQSongTask extends AsyncTask<String, Void, SongsInfo<QQSong>>{
 
         @Override
         protected void onPreExecute() {
             super.onPreExecute();
-            isFirstClick = false;
         }
 
         @Override
-        protected String doInBackground(String... params) {
-            mtitle = params[0];
-            martist = params[1];
-            String lrc = HttpApi.getLrc(params);
-            if(lrc == null){
-                return null;
-            }
-            FileUtils.downLrc(lrc, FileUtils.getLrcName(mtitle, martist));
-            return lrc;
+        protected SongsInfo<QQSong> doInBackground(String... params) {
+            return HttpApi.getQQSongKeyword(params[0], 1);
         }
+
         @Override
-        protected void onPostExecute(String s) {
-            super.onPostExecute(s);
-            if(StringUtils.isNullOrEmpty(s)){
-                mActivity.showText("没有找到歌词");
-            }else{
-                updateLrc(FileUtils.getLrcName(mtitle, martist));
+        protected void onPostExecute(SongsInfo<QQSong> qqSongs) {
+            super.onPostExecute(qqSongs);
+            if(qqSongs == null){
+                mActivity.showText("没有网络或者没有歌词！");
+                return;
+            }
+            if (qqSongs.getList() != null && qqSongs.getList().size()>0){
+                QQSong song = qqSongs.getList().get(0);
+                getQueryQQLRCTask(song.getSongid());
+            } else {
+                mActivity.showText("没有网络或者没有歌词！");
             }
         }
     }
+
 
     /**从QQ音乐获取歌词*/
     public void getQueryQQLRCTask(String songID){
@@ -185,6 +201,7 @@ public class LrcFragment extends BaseMediaFragment implements PlayFragment.SeekB
         mQueryLRCFromQQ = new QueryLRCFromQQ();
         mQueryLRCFromQQ.execute(songID);
     }
+
     /**从QQ音乐获取歌词*/
     public class QueryLRCFromQQ extends AsyncTask<String, Void, String>{
 
@@ -204,7 +221,7 @@ public class LrcFragment extends BaseMediaFragment implements PlayFragment.SeekB
             if(StringUtils.isNullOrEmpty(s)){
                 mActivity.showText("没有找到歌词");
             }
-            updateLrc(FileUtils.getLrcName(mTitle, mArtist));
+            udpateLrcFromLrc(s);
         }
     }
 }

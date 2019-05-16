@@ -42,7 +42,7 @@ public class SplashActivity extends Activity {
     private RelativeLayout rl_splash;
 
     /**广告时长*/
-    private long adDuration = 2000;
+    private long adDuration = 500;
 
     private Timer mTimer;
     private TimerTask mTimerTask;
@@ -133,7 +133,7 @@ public class SplashActivity extends Activity {
         // 透明动画（从完全透明到不透明，分别对应第一个参数和第二个参数）
         animation = new AlphaAnimation(0.8f, 1.0f);
         // 动画效果时间为3秒
-        animation.setDuration(2000);
+        animation.setDuration(1000);
         // 动画监听
         animation.setAnimationListener(mAnimationListener);
         // 设置开始动画

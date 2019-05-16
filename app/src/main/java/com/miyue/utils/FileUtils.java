@@ -48,6 +48,14 @@ public class FileUtils {
         return file.delete();
     }
 
+    public static boolean deleteLrc(String songName, String artist){
+        File file = new File(MiYueConstans.LRC_PATH +songName+"-"+artist+".lrc");
+        if(!file.exists()){
+            return true;
+        }
+        return file.delete();
+    }
+
     /**
      * 保存歌词到本地
      * */

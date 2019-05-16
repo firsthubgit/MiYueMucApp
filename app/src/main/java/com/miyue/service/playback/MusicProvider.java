@@ -7,6 +7,7 @@ import android.os.Bundle;
 import android.os.Environment;
 import android.provider.MediaStore;
 import android.support.v4.media.MediaBrowserCompat;
+import android.support.v4.media.MediaDescriptionCompat;
 import android.support.v4.media.MediaMetadataCompat;
 import android.text.TextUtils;
 
@@ -318,7 +319,12 @@ public class MusicProvider {
     public void deleteMusic(String mediaID){
         String[] media = mediaID.split(":");
         MediaMetadataCompat metadata = getMusic(mediaID,media[0]);
-        FileUtils.deleteMusic(metadata.getDescription().getMediaUri().toString());
+        Bundle bundle = metadata.getBundle();
+        String songName = (String)bundle.get(MediaMetadataCompat.METADATA_KEY_TITLE);
+        String artist = (String) bundle.get(MediaMetadataCompat.METADATA_KEY_ARTIST);
+        String songPath = (String) bundle.get(MediaMetadataCompat.METADATA_KEY_MEDIA_URI);
+        FileUtils.deleteLrc(songName, artist);
+        FileUtils.deleteMusic(songPath);
         mDbHelper.deleteDownload(media[1]);
         mDbHelper.deleteLocal(media[1]);
         mDbHelper.deleteRecent(media[1]);
@@ -328,6 +334,8 @@ public class MusicProvider {
         refereshCurrentMap(DbConstans.LOCAL_MUSIC);
         refereshCurrentMap(DbConstans.RECENT);
         refereshCurrentMap(DbConstans.FAVORITES);
+
+
     }
 
     /**下载完成添加到列表*/
