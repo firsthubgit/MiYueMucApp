@@ -34,6 +34,8 @@ import com.miyue.utils.SkinUtils;
 import com.miyue.utils.UtilLog;
 import com.miyue.widgets.PartBluredView;
 
+import java.util.Random;
+
 public class MainActivity extends BaseActivity {
 
     private static final String TAG = "MainActivity";
@@ -112,6 +114,24 @@ public class MainActivity extends BaseActivity {
         mViewPager = (ViewPager) findViewById(R.id.main_viewpager);
         mViewPager.setOffscreenPageLimit(4);
         mViewPager.setAdapter(new SectionPagerAdapter(getFragmentManager()));
+        mViewPager.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
+            @Override
+            public void onPageScrolled(int i, float v, int i1) {
+
+            }
+
+            @Override
+            public void onPageSelected(int i) {
+                if(i==3){
+                    NotifyUtil.notifyProgress(new Random().nextInt(10));
+                }
+            }
+
+            @Override
+            public void onPageScrollStateChanged(int i) {
+
+            }
+        });
     }
     /**
      * 设置顶栏透明
@@ -208,6 +228,7 @@ public class MainActivity extends BaseActivity {
 
     @Override
     public void onMediaControllerConnected(MediaControllerCompat mcc){
+        super.onMediaControllerConnected(mcc);
         mLrcFragment.setMediaController(mcc);
         mLrcFragment.registCallback();
         mPlayFragment.setMediaController(mcc);

@@ -31,7 +31,7 @@ public class MiYueConstans {
 
      public static final String QQ_PIC_URL = "https://y.gtimg.cn/music/photo_new/T002R300x300M000专辑mid.jpg?max_age=2592000";
 
-     public static final String QQ_PLAY_URL = "http://dl.stream.qqmusic.qq.com/C400MEDIAID.m4a?vkey=AK&guid=joe&uin=0&fromtag=8";
+     public static final String QQ_PLAY_URL = "http://124.193.228.150/amobile.music.tc.qq.com/C400MEDIAID.m4a?vkey=AK&guid=joe&uin=0&fromtag=8";
 
 
 

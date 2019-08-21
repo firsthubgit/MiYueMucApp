@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">迷乐音乐</string>
+    <string name="app_name">迷路音乐</string>
     <string name="find_hint">搜索歌曲、歌手、歌词</string>
     <string name="navigation_drawer_open">开navigation drawer</string>
     <string name="navigation_drawer_close">关navigation drawer</string>
@@ -12,7 +12,7 @@
     <string name="my_favorite_music">我喜欢的</string>
 
     <string name="skip_ad">跳过</string>
-    <string name="menu_title">迷乐音乐播放器</string>
+    <string name="menu_title">迷路音乐播放器</string>
 
 
     <string name="about">关于</string>

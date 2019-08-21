@@ -6,6 +6,8 @@ package com.miyue.notification;
 * @time 17/5/21 下午6:24
 */
 import android.app.Notification;
+import android.app.NotificationChannel;
+import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -14,8 +16,10 @@ import android.content.IntentFilter;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
+import android.os.Build;
 import android.os.RemoteException;
 import android.support.annotation.NonNull;
+import android.support.annotation.RequiresApi;
 import android.support.v4.app.NotificationCompat;
 import android.support.v4.media.app.NotificationCompat.MediaStyle;
 import android.support.v4.app.NotificationManagerCompat;
@@ -26,12 +30,15 @@ import android.support.v4.media.session.MediaSessionCompat;
 import android.support.v4.media.session.PlaybackStateCompat;
 
 import com.miyue.R;
+import com.miyue.application.MiYueApp;
 import com.miyue.application.MiYueConstans;
 import com.miyue.service.PlayerService;
 import com.miyue.ui.activity.MainActivity;
 import com.miyue.utils.ImageCacheUtils;
 import com.miyue.utils.ResourceUtils;
 import com.miyue.utils.UtilLog;
+
+import java.util.Random;
 
 /**
  * Keeps track of a notification and updates it automatically for a given
@@ -43,6 +50,9 @@ public class MediaNotificationManager extends BroadcastReceiver {
 
     private static final int NOTIFICATION_ID = 412;
     private static final int REQUEST_CODE = 100;
+
+    public static final String CHANNEL_ID = "channel_id22";
+    public static final String CHANNEL_NAME = "channel_name22";
 
     public static final String ACTION_PAUSE = "com.example.android.uamp.pause";
     public static final String ACTION_PLAY = "com.example.android.uamp.play";
@@ -58,7 +68,7 @@ public class MediaNotificationManager extends BroadcastReceiver {
     private PlaybackStateCompat mPlaybackState;
     private MediaMetadataCompat mMetadata;
 
-    private final NotificationManagerCompat mNotificationManager;
+    private final NotificationManager mNotificationManager;
 
     private final PendingIntent mPauseIntent;
     private final PendingIntent mPlayIntent;
@@ -78,7 +88,7 @@ public class MediaNotificationManager extends BroadcastReceiver {
         mNotificationColor = ResourceUtils.getThemeColor(mService, R.attr.colorPrimary,
                 Color.DKGRAY);
 
-        mNotificationManager = NotificationManagerCompat.from(service);
+        mNotificationManager = (NotificationManager) service.getSystemService(service.getApplicationContext().NOTIFICATION_SERVICE);
 
         String pkg = mService.getPackageName();
         mPauseIntent = PendingIntent.getBroadcast(mService, REQUEST_CODE,
@@ -120,11 +130,16 @@ public class MediaNotificationManager extends BroadcastReceiver {
                 filter.addAction(ACTION_STOP_CASTING);
                 mService.registerReceiver(this, filter);
 
-                mService.startForeground(NOTIFICATION_ID, notification);
+                startForeground(notification);
                 mStarted = true;
             }
         }
     }
+
+    private void startForeground(Notification notification) {
+        mService.startForeground(NOTIFICATION_ID, notification);
+    }
+
 
     /**
      * Removes the notification and stops tracking the session. If the session
@@ -248,8 +263,22 @@ public class MediaNotificationManager extends BroadcastReceiver {
         if (mMetadata == null || mPlaybackState == null) {
             return null;
         }
+        NotificationCompat.Builder notificationBuilder = null;
 
-        NotificationCompat.Builder notificationBuilder = new NotificationCompat.Builder(mService);
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            NotificationChannel chan = new NotificationChannel(CHANNEL_ID, CHANNEL_NAME,
+                    NotificationManager.IMPORTANCE_LOW);
+            // 设置显示模式
+            chan.setLockscreenVisibility(NotificationCompat.VISIBILITY_PUBLIC);
+            mNotificationManager.createNotificationChannel(chan);
+
+            notificationBuilder = new NotificationCompat.Builder(mService, CHANNEL_ID);
+            notificationBuilder.setChannelId(CHANNEL_ID);
+        } else {
+            notificationBuilder = new NotificationCompat.Builder(mService);
+        }
+
         int playPauseButtonPosition = 0;
 
         // If skip to previous action is enabled
@@ -274,7 +303,6 @@ public class MediaNotificationManager extends BroadcastReceiver {
 
         MediaDescriptionCompat description = mMetadata.getDescription();
 
-        String fetchArtUrl = null;
         Bitmap art = null;
         if (description.getIconUri() != null) {
             // This sample assumes the iconUri will be a valid URL formatted String, but
@@ -283,9 +311,8 @@ public class MediaNotificationManager extends BroadcastReceiver {
             String artUrl = description.getIconUri().toString();
             art = ImageCacheUtils.getInstance().getSmallImage(artUrl);
             if (art == null) {
-                fetchArtUrl = artUrl;
                 // use a placeholder art while the remote art is being downloaded
-                art = BitmapFactory.decodeResource(mService.getResources(),
+                art = BitmapFactory.decodeResource(mService.getApplicationContext().getResources(),
                         R.drawable.ic_default_art);
             }
         }
@@ -304,20 +331,18 @@ public class MediaNotificationManager extends BroadcastReceiver {
                 .setContentText(description.getSubtitle())
                 .setLargeIcon(art);
 
-        if (mController != null && mController.getExtras() != null) {
-            String castName = mController.getExtras().getString(MiYueConstans.EXTRA_CONNECTED_CAST);
-            if (castName != null) {
-                String castInfo = "待定";
-                notificationBuilder.setSubText(castInfo);
-                notificationBuilder.addAction(R.drawable.ic_close_black_24dp,
-                        mService.getString(R.string.stop_casting), mStopCastIntent);
-            }
-        }
+//        if (mController != null && mController.getExtras() != null) {
+//            String castName = mController.getExtras().getString(MiYueConstans.EXTRA_CONNECTED_CAST);
+//            if (castName != null) {
+//                String castInfo = "待定";
+//                notificationBuilder.setSubText(castInfo);
+//                notificationBuilder.addAction(R.drawable.ic_close_black_24dp,
+//                        mService.getString(R.string.stop_casting), mStopCastIntent);
+//            }
+//        }
 
-        setNotificationPlaybackState(notificationBuilder);
-        if (fetchArtUrl != null) {
-//            fetchBitmapFromURLAsync(fetchArtUrl, notificationBuilder);
-        }
+//        setNotificationPlaybackState(notificationBuilder);
+
 
         return notificationBuilder.build();
     }

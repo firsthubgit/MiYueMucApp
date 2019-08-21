@@ -25,7 +25,6 @@ public class Downkey extends AsyncTask<String, Void, String> {
     @Override
     protected void onPostExecute(String keyString) {
         super.onPostExecute(keyString);
-        UtilLog.e("kkk", keyString);
         if(!StringUtils.isNullOrEmpty(keyString)){
             JSONObject object = JSON.parseObject(keyString);
             JSONObject data = (JSONObject) object.get("data");
